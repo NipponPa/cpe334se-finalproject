@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"  # Maps port 3000 on your host to port 3000 in the container
+    volumes:
+      # Mounts the current directory (your project) into the container's /app directory
+      # This allows for live reloading when you change files on your host machine
+      - .:/app
+      # Mounts the node_modules directory inside the container to avoid conflicts
+      # This ensures the container's installed modules are used, not your local ones
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development  # Sets the environment variable for development
+    command: npm run dev # Ensures the development server runs
+    # Optional: Add a restart policy to automatically restart the container if it crashes
+    restart: unless-stopped
