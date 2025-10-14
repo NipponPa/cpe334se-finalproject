@@ -47,7 +47,7 @@ Follow these steps to set up the project locally:
 
 4. Install additional dependencies for ShadCN UI:
    ```bash
-   npx shadcn-ui@latest add card button input label
+   npx shadcn@latest add card button input label
    ```
 
 5. Install additional dependencies used in this template:
