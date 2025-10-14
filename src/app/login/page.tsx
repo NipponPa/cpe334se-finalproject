@@ -43,72 +43,57 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-[#373434]">
-      <div className="w-full max-w-xs p-8 space-y-6">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-[#FFDA68]">Log in</h1>
-        </div>
-        
+    <div className="min-h-screen flex items-center justify-center bg-[#353131]">
+      <div className="w-[400px] bg-[#353131] p-8 rounded-lg shadow-md flex flex-col items-center">
+        <h2 className="text-3xl font-bold mb-6 text-center text-[#FFD966]">Log in</h2>
         {error && <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">{error}</div>}
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4">
           <div>
-            <Label htmlFor="email" className="block mb-1 text-sm text-[#FFDA68]">Username:</Label>
+            <Label htmlFor="email" className="block mb-1 text-[#FFD966]">Username:</Label>
             <Input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-3 py-2 bg-white text-black rounded-sm border-0"
+              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#FFD966]"
             />
           </div>
-          
           <div>
-            <Label htmlFor="password" className="block mb-1 text-sm text-[#FFDA68]">Password:</Label>
+            <Label htmlFor="password" className="block mb-1 text-[#FFD966]">Password:</Label>
             <Input
               id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-3 py-2 bg-white text-black rounded-sm border-0"
+              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#FFD966]"
             />
           </div>
-          
-          <div className="text-right">
-            <Link href="/reset-password" className="text-sm text-[#FFDA68] hover:underline">
-              forget password?
-            </Link>
+          <div className="text-right mb-2">
+            <Link href="/reset-password" className="text-[#FFD966] text-sm hover:underline">forget password?</Link>
           </div>
-          
           <Button
             type="submit"
-            className="w-full py-2 bg-transparent border border-[#FFDA68] text-[#FFDA68] rounded-md hover:bg-[#FFDA68] hover:text-[#373434]"
+            className="w-full py-2 bg-transparent border border-[#FFD966] text-[#FFD966] rounded hover:bg-[#FFD966] hover:text-[#353131] font-bold"
           >
             Log in
           </Button>
         </form>
-        
-        <div className="text-center">
-          <Button
-            type="button"
-            onClick={() => router.push('/signup')}
-            className="w-full py-2 bg-transparent border border-[#FFDA68] text-[#FFDA68] rounded-md hover:bg-[#FFDA68] hover:text-[#373434]"
-          >
-            Sign up
-          </Button>
-        </div>
-        
-        <div className="mt-4">
-          <Button
-            type="button"
-            onClick={() => handleOAuthSignIn('google')}
-            className="w-full py-2 bg-white text-black border border-gray-300 rounded-md flex items-center justify-center gap-2"
-          >
-            <span>Sign in with Google</span>
-          </Button>
-        </div>
+        <Button
+          type="button"
+          onClick={() => router.push('/signup')}
+          className="w-full py-2 mt-4 bg-transparent border border-[#FFD966] text-[#FFD966] rounded hover:bg-[#FFD966] hover:text-[#353131] font-bold"
+        >
+          Sign up
+        </Button>
+        <Button
+          type="button"
+          onClick={() => handleOAuthSignIn('google')}
+          className="w-full py-2 mt-4 bg-white text-[#353131] rounded flex items-center justify-center font-bold shadow hover:bg-gray-100"
+        >
+          <span className="mr-2">Sign in with Google</span>
+        </Button>
       </div>
     </div>
   );

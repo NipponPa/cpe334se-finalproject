@@ -3,7 +3,7 @@
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { CardContent, CardTitle } from '@/components/ui/card'
 
 type ProtectedRouteProps = {
   children: React.ReactNode
@@ -13,14 +13,16 @@ type ProtectedRouteProps = {
 export default function ProtectedRoute({ 
   children, 
   fallback = (
-    <Card className="w-full max-w-md mx-auto mt-10">
-      <CardHeader>
-        <CardTitle>Authentication Required</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p>Redirecting to login...</p>
-      </CardContent>
-    </Card>
+    <div className="min-h-screen flex items-center justify-center bg-[#373434]">
+      <div className="w-full max-w-xs p-8 space-y-6">
+        <div className="text-center">
+          <CardTitle className="text-3xl font-bold text-[#FFDA68]">Authentication Required</CardTitle>
+        </div>
+        <CardContent className="p-0 pt-4 text-center">
+          <p className="text-[#FFDA68]">Redirecting to login...</p>
+        </CardContent>
+      </div>
+    </div>
   ) 
 }: ProtectedRouteProps) {
   const { user, loading } = useAuth()
@@ -34,14 +36,16 @@ export default function ProtectedRoute({
 
   if (loading) {
     return (
-      <Card className="w-full max-w-md mx-auto mt-10">
-        <CardHeader>
-          <CardTitle>Loading...</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p>Please wait while we verify your authentication status...</p>
-        </CardContent>
-      </Card>
+      <div className="min-h-screen flex items-center justify-center bg-[#373434]">
+        <div className="w-full max-w-xs p-8 space-y-6">
+          <div className="text-center">
+            <CardTitle className="text-3xl font-bold text-[#FFDA68]">Loading...</CardTitle>
+          </div>
+          <CardContent className="p-0 pt-4 text-center">
+            <p className="text-[#FFDA68]">Please wait while we verify your authentication status...</p>
+          </CardContent>
+        </div>
+      </div>
     )
   }
 
