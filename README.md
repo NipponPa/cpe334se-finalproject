@@ -20,7 +20,7 @@ Before you begin, ensure you have the following installed on your system:
 - [ShadCN UI](https://ui.shadcn.com/) - Accessible and customizable UI components
 - [Radix UI Primitives](https://www.radix-ui.com/) - Low-level UI components
 - [Lucide React](https://lucide.dev/) - Icon library
-- [Supabase](https://supabase.com/) - Backend services (optional)
+- [Supabase](https://supabase.com/) - Backend-as-a-Service for authentication and database
 - [React Hook Form](https://react-hook-form.com/) - Form handling library
 - [Zod](https://zod.dev/) - Schema validation library
 - [Docker](https://docker.com/) - Containerization platform
@@ -30,35 +30,25 @@ Before you begin, ensure you have the following installed on your system:
 
 Follow these steps to set up the project locally:
 
-1. Clone the repository (if available) or create a new Next.js project:
+1. Clone the repository:
    ```bash
-   npx create-next-app@latest my-app --typescript --tailwind --eslint
+   git clone <repository-url>
    ```
 
 2. Navigate to your project directory:
    ```bash
-   cd my-app
+   cd cpe334se-finalproject
    ```
 
 3. Install the required dependencies:
    ```bash
    npm install
    ```
-
-4. Install additional dependencies for ShadCN UI:
-   ```bash
-   npx shadcn@latest add card button input label
-   ```
-
-5. Install additional dependencies used in this template:
-   ```bash
-   npm install @radix-ui/react-label @radix-ui/react-slot lucide-react class-variance-authority clsx tailwind-merge tailwindcss-animate react-hook-form zod @supabase/supabase-js
-   ```
-
-6. Install development dependencies:
-   ```bash
-   npm install -D @types/node @types/react @types/react-dom autoprefixer postcss tailwindcss
-   ```
+4. Set up your environment variables by creating a `.env.local` file with your Supabase credentials:
+    ```
+    NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+    NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+    ```
 ## Running the Application
 
 ### Development Mode
@@ -104,46 +94,58 @@ The application will be available at `http://localhost:3000`
 
 ```
 .
-├── public/                 # Static assets
-│   ├── file.svg
-│   ├── globe.svg
-│   ├── next.svg
-│   ├── vercel.svg
-│   └── window.svg
+├── public/
+│   ├── ...
 ├── src/
-│   ├── app/                # Next.js 13+ app directory
-│   │   ├── favicon.ico
-│   │   ├── globals.css     # Global styles
-│   │   ├── layout.tsx      # Root layout
-│   │   ├── page.module.css # Page-specific styles
-│   │   └── page.tsx        # Home page
-│   ├── components/         # Reusable components
-│   │   └── ui/             # ShadCN UI components
+│   ├── app/
+│   │   ├── login/
+│   │   │   └── page.tsx      # Login page
+│   │   ├── signup/
+│   │   │   └── page.tsx      # Signup page
+│   │   ├── reset-password/
+│   │   │   └── page.tsx      # Password reset page
+│   │   ├── globals.css
+│   │   ├── layout.tsx
+│   │   └── page.tsx        # Dashboard/Home page
+│   ├── components/
+│   │   ├── ProtectedRoute.tsx # Component to protect routes
+│   │   └── ui/
 │   │       ├── button.tsx
 │   │       ├── card.tsx
 │   │       ├── input.tsx
 │   │       └── label.tsx
+│   ├── contexts/
+│   │   └── AuthContext.tsx   # Manages authentication state
 │   └── lib/
-│       └── utils.ts        # Utility functions
-├── .gitignore
-├── components.json         # ShadCN configuration
-├── eslint.config.mjs
-├── next.config.ts          # Next.js configuration
+│       ├── supabase.ts     # Supabase client initialization
+│       └── utils.ts
+├── docs/
+│   └── adr/
+│       └── 001-supabase-authentication-approach.md
+├── .env.local.example      # Example environment variables
+├── docker-compose.yml
+├── Dockerfile
+├── next.config.ts
 ├── package.json
-├── tailwind.config.ts      # Tailwind CSS configuration
-└── tsconfig.json           # TypeScript configuration
+└── tsconfig.json
 ```
+## Authentication
+
+This template uses **Supabase** for authentication. The authentication flow is managed through `src/contexts/AuthContext.tsx`, which provides hooks for signing up, signing in (with email/password and OAuth), and signing out.
+
+- **Protected Routes**: The `src/components/ProtectedRoute.tsx` component ensures that only authenticated users can access certain pages.
+- **UI Components**: The application includes pre-built pages for login, signup, and password reset in the `src/app/` directory.
+- **Supabase Client**: The Supabase client is initialized in `src/lib/supabase.ts`.
+
 ## Features
 
-- Modern React development with Next.js 15
-- Type-safe with TypeScript
-- Beautiful UI with Tailwind CSS and ShadCN components
-- Responsive design
-- Dark mode support
-- Pre-configured with ESLint and other development tools
-- Optimized for performance
-- Docker containerization support
-- Supabase integration for backend services
+- **Full Authentication Flow**: Email/password and OAuth (Google) sign-up and sign-in.
+- **Protected Routes**: Secure pages accessible only to authenticated users.
+- **Password Reset**: Functionality for users to reset their passwords.
+- **Modern Tech Stack**: Next.js 15, React 19, and TypeScript.
+- **Styled with Tailwind CSS**: A utility-first CSS framework for rapid UI development.
+- **ShadCN UI Components**: A set of accessible and customizable UI components.
+- **Docker Support**: Comes with `Dockerfile` and `docker-compose.yml` for easy containerization.
 
 
 ## Customization

@@ -4,7 +4,7 @@
 Use Supabase for Authentication in Next.js Application
 
 ## Status
-Proposed
+Accepted
 
 ## Context
 Our Next.js application requires a robust authentication system to secure user data and provide personalized experiences. We need to decide on an authentication approach that balances development speed, security, maintainability, and scalability.
@@ -62,6 +62,22 @@ We will implement authentication using Supabase for the following reasons:
 3. Implement protected route components
 4. Build login/signup UI components
 5. Configure environment variables for Supabase credentials
+
+## Common Configuration Issues and Solutions
+
+### Issue: "Anonymous sign-ins are disabled" error
+**Description**: When attempting to sign up with email/password, the error "Anonymous sign-ins are disabled" appears.
+
+**Solution**: This error occurs when email/password authentication is not enabled in the Supabase dashboard. To fix this:
+1. Go to your Supabase dashboard at https://supabase.com/dashboard
+2. Select your project
+3. Navigate to the "Authentication" section in the sidebar
+4. Click on "Settings" under Authentication
+5. Ensure that "Email and password" option is enabled
+6. Ensure that "Sign up enabled" is toggled on
+7. Save the changes
+
+**Prevention**: When setting up a new Supabase project, always verify that the required authentication providers are enabled in the dashboard.
 
 ## Consequences
 

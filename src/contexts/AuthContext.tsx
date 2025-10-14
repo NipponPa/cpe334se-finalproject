@@ -10,6 +10,7 @@ type AuthContextType = {
   signIn: (email: string, password: string) => Promise<any>
   signInWithOAuth: (provider: 'google' | 'github' | 'facebook') => Promise<void>
   signOut: () => Promise<void>
+  resetPassword: (email: string) => Promise<any>
   loading: boolean
 }
 
@@ -68,12 +69,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null)
   }
 
+  const resetPassword = async (email: string) => {
+    return await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/callback` // Adjust the redirect URL as needed
+    });
+  }
+
   const value = {
     user,
     signUp,
     signIn,
     signInWithOAuth,
     signOut,
+    resetPassword,
     loading
   }
 
