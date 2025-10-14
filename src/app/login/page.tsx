@@ -33,7 +33,7 @@ export default function LoginPage() {
       if (result.error) {
         setError(result.error.message)
       } else {
-        router.push('/dashboard') // Redirect to dashboard after login
+        router.push('/') 
       }
     } catch (err) {
       setError('An error occurred during authentication')

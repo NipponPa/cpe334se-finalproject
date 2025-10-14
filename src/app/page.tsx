@@ -1,124 +1,58 @@
 'use client';
 
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import ProtectedRoute from "@/components/ProtectedRoute";
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
 export default function Home() {
+  const { user, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
+
   return (
     <ProtectedRoute>
-      <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-        <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start w-full max-w-md">
-          <Image
-            className="dark:invert"
-            src="/next.svg"
-            alt="Next.js logo"
-            width={180}
-            height={38}
-            priority
-          />
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-4">
+        <div className="w-full max-w-4xl mx-auto text-center">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-2">Welcome to Your Dashboard</h1>
+          <p className="text-lg text-gray-600 mb-8">Secure Protected Area</p>
           
-          <Card className="w-full">
+          <Card className="w-full max-w-2xl mx-auto shadow-xl">
             <CardHeader>
-              <CardTitle>ShadCN Component Example</CardTitle>
-              <CardDescription>Try out the new UI components</CardDescription>
+              <CardTitle className="text-2xl">User Information</CardTitle>
             </CardHeader>
-            <CardContent className="flex flex-col gap-4">
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="name@example.com" />
+            <CardContent className="space-y-4">
+              <div className="flex flex-col items-center space-y-4">
+                <div className="bg-gray-200 border-2 border-dashed rounded-xl w-16 h-16 flex items-center justify-center text-gray-500">
+                  {user?.email?.charAt(0).toUpperCase() || 'U'}
+                </div>
+                <div className="text-left w-full max-w-md">
+                  <p className="text-gray-600"><span className="font-semibold">Email:</span> {user?.email || 'N/A'}</p>
+                  <p className="text-gray-600"><span className="font-semibold">User ID:</span> {user?.id || 'N/A'}</p>
+                  <p className="text-gray-600"><span className="font-semibold">Authentication Status:</span> Active</p>
+                  {user?.created_at && (
+                    <p className="text-gray-600"><span className="font-semibold">Account Created:</span> {new Date(user.created_at).toLocaleDateString()}</p>
+                  )}
+                </div>
               </div>
-              <Button>Get Started</Button>
+              
+              <div className="flex justify-center space-x-4 pt-4">
+                <Button onClick={handleSignOut} variant="outline">
+                  Sign Out
+                </Button>
+                <Button>
+                  <a href="/dashboard">Go to Dashboard</a>
+                </Button>
+              </div>
             </CardContent>
-            <CardFooter className="flex justify-between">
-              <Button variant="outline">Cancel</Button>
-              <Button>Continue</Button>
-            </CardFooter>
           </Card>
-
-          <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-            <li className="mb-2">
-              Get started by editing <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">src/app/page.tsx</code>.
-            </li>
-            <li>Save and see your changes instantly.</li>
-          </ol>
-
-          <div className="flex gap-4 flex-wrap items-center justify-center sm:justify-start">
-            <a
-              className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 hover:border-gray-300 dark:hover:border-neutral-600 hover:text-[#2f6f44] dark:hover:text-[#1a4126] hover:dark:text-[#1a4126]"
-              href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Image
-                className="dark:invert"
-                src="/vercel.svg"
-                alt="Vercel logomark"
-                width={20}
-                height={20}
-              />
-              Deploy now
-            </a>
-            <a
-              className="rounded-full border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-              href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Read our docs
-            </a>
+          
+          <div className="mt-8 text-gray-500 text-sm">
+            <p>This is a protected page. Only authenticated users can access this content.</p>
           </div>
-        </main>
-        <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-          <a
-            className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-            href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              aria-hidden
-              src="/file.svg"
-              alt="File icon"
-              width={16}
-              height={16}
-            />
-            Learn
-          </a>
-          <a
-            className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-            href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              aria-hidden
-              src="/window.svg"
-              alt="Window icon"
-              width={16}
-              height={16}
-            />
-            Examples
-          </a>
-          <a
-            className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-            href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              aria-hidden
-              src="/globe.svg"
-              alt="Globe icon"
-              width={16}
-              height={16}
-            />
-            Go to nextjs.org →
-          </a>
-        </footer>
+        </div>
       </div>
     </ProtectedRoute>
   );
