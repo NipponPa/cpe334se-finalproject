@@ -12,7 +12,7 @@ Before you begin, ensure you have the following installed on your system:
 
 ## Technologies Used
 
-- [Next.js 15.4](https://nextjs.org/) - React framework
+- [Next.js 15.5.4](https://nextjs.org/) - React framework
 - [React 19.1.0](https://reactjs.org/) - JavaScript library for building user interfaces
 - [React DOM 19.1.0](https://reactjs.org/) - React package for DOM-specific methods
 - [TypeScript](https://www.typescriptlang.org/) - Typed JavaScript language
@@ -23,7 +23,8 @@ Before you begin, ensure you have the following installed on your system:
 - [Supabase](https://supabase.com/) - Backend services (optional)
 - [React Hook Form](https://react-hook-form.com/) - Form handling library
 - [Zod](https://zod.dev/) - Schema validation library
-- [Geist Font](https://vercel.com/font) - Modern font family
+- [Docker](https://docker.com/) - Containerization platform
+- [Docker Compose](https://docs.docker.com/compose/) - Container orchestration
 
 ## Installation
 
@@ -58,7 +59,6 @@ Follow these steps to set up the project locally:
    ```bash
    npm install -D @types/node @types/react @types/react-dom autoprefixer postcss tailwindcss
    ```
-
 ## Running the Application
 
 ### Development Mode
@@ -86,6 +86,19 @@ To build and run the application in production mode:
    ```
 
 The application will be available at `http://localhost:3000` (or the port specified in your environment)
+
+### Docker Mode
+
+To run the application using Docker:
+
+1. Make sure you have Docker and Docker Compose installed
+2. Build and start the containers:
+   ```bash
+   docker-compose up --build
+   ```
+
+The application will be available at `http://localhost:3000`
+
 
 ## Project Structure
 
@@ -120,7 +133,6 @@ The application will be available at `http://localhost:3000` (or the port specif
 ├── tailwind.config.ts      # Tailwind CSS configuration
 └── tsconfig.json           # TypeScript configuration
 ```
-
 ## Features
 
 - Modern React development with Next.js 15
@@ -130,6 +142,9 @@ The application will be available at `http://localhost:3000` (or the port specif
 - Dark mode support
 - Pre-configured with ESLint and other development tools
 - Optimized for performance
+- Docker containerization support
+- Supabase integration for backend services
+
 
 ## Customization
 
