@@ -20,6 +20,33 @@ We will implement authentication using Supabase for the following reasons:
 - Session management
 - Protected route implementation
 
+### Frameworks and Libraries Chosen
+- **Frontend Framework**: Next.js 15.5.4
+- **Runtime Environment**: React 19.1.0
+- **Language**: TypeScript
+- **UI Components**: Radix UI primitives, Tailwind CSS
+- **Authentication Library**: Supabase JavaScript client library (@supabase/supabase-js v2.75.0)
+- **Database**: Supabase PostgreSQL database
+- **UI Styling**: Tailwind CSS with Tailwind Merge for class composition
+
+### Session Strategy
+- **JWT-based Authentication**: Supabase uses JSON Web Tokens (JWT) for session management
+- **Client-side Storage**: Session tokens are stored in browser storage and managed by the Supabase client
+- **Automatic Token Refresh**: Supabase handles token refresh automatically to maintain user sessions
+- **Secure Token Handling**: Tokens are stored securely and included in requests automatically
+
+### User Record Storage
+- **Database**: User records are stored in Supabase's PostgreSQL database
+- **Authentication Tables**: Supabase automatically manages authentication tables (auth.users, auth.identities)
+- **User Profiles**: Additional user profile data can be stored in custom tables linked to auth.users
+- **Security**: Database access is controlled through Row Level Security (RLS) policies
+
+### Redirect URIs
+- **Local Development**: http://localhost:3000
+- **Production**: https://[domain].com (to be configured based on deployment)
+- **OAuth Callbacks**: Configured in Supabase dashboard for each OAuth provider
+- **Auth Callback Path**: /auth/callback (standard path for handling authentication redirects)
+
 ### Why Supabase?
 1. **Rapid Development**: Supabase provides a complete authentication backend without requiring custom server implementation
 2. **Built-in Security**: Handles password hashing, session management, and security best practices out-of-the-box
