@@ -44,11 +44,9 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-[#373434]">
-      <div className="w-full max-w-xs p-8 space-y-6">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-[#FFDA68]">Reset Password</h1>
-        </div>
+    <div className="min-h-screen flex items-center justify-center bg-[#353131]">
+      <div className="w-[400px] bg-[#353131] p-8 rounded-lg shadow-md flex flex-col items-center">
+        <h1 className="text-3xl font-bold mb-6 text-center text-[#FFD966]">Reset Password</h1>
         
         {error && <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">{error}</div>}
         
@@ -57,58 +55,58 @@ export default function ResetPasswordPage() {
             Password reset email sent! Please check your inbox.
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4">
             <div>
-              <Label htmlFor="username" className="block mb-1 text-sm text-[#FFDA68]">Username:</Label>
+              <Label htmlFor="username" className="block mb-1 text-[#FFD966]">Username:</Label>
               <Input
                 id="username"
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
-                className="w-full px-3 py-2 bg-white text-black rounded-sm border-0"
+                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#FFD966]"
               />
             </div>
             <div>
-              <Label htmlFor="email" className="block mb-1 text-sm text-[#FFDA68]">Email:</Label>
+              <Label htmlFor="email" className="block mb-1 text-[#FFD966]">Email:</Label>
               <Input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-3 py-2 bg-white text-black rounded-sm border-0"
+                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#FFD966]"
               />
             </div>
             
             <div>
-              <Label htmlFor="new-password" className="block mb-1 text-sm text-[#FFDA68]">New Password:</Label>
+              <Label htmlFor="new-password" className="block mb-1 text-[#FFD966]">New Password:</Label>
               <Input
                 id="new-password"
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 required
-                className="w-full px-3 py-2 bg-white text-black rounded-sm border-0"
+                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#FFD966]"
               />
             </div>
 
             <div>
-              <Label htmlFor="confirm-password" className="block mb-1 text-sm text-[#FFDA68]">Confirm Password:</Label>
+              <Label htmlFor="confirm-password" className="block mb-1 text-[#FFD966]">Confirm Password:</Label>
               <Input
                 id="confirm-password"
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
-                className="w-full px-3 py-2 bg-white text-black rounded-sm border-0"
+                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#FFD966]"
               />
             </div>
             
-            <div className="pt-4">
+            <div>
               <Button
                 type="submit"
-                className="w-full py-2 bg-transparent border border-[#FFDA68] text-[#FFDA68] rounded-md hover:bg-[#FFDA68] hover:text-[#373434]"
+                className="w-full py-2 bg-transparent border border-[#FFD966] text-[#FFD966] rounded hover:bg-[#FFD966] hover:text-[#353131] font-bold"
               >
                 Reset Password
               </Button>
@@ -117,7 +115,7 @@ export default function ResetPasswordPage() {
         )}
         
         <div className="text-center">
-          <Link href="/login" className="text-sm text-[#FFDA68] hover:underline">
+          <Link href="/login" className="text-sm text-[#FFD966] hover:underline">
             Back to Log in
           </Link>
         </div>
