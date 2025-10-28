@@ -1,20 +1,20 @@
 # Architecture Decision Record: Supabase Authentication Implementation
 
 ## Title
-Use Supabase for Authentication in Next.js Application
+Use Supabase with Google OAuth for Authentication in Next.js Application
 
 ## Status
 Accepted
 
 ## Context
-Our Next.js application requires a robust authentication system to secure user data and provide personalized experiences. We need to decide on an authentication approach that balances development speed, security, maintainability, and scalability.
+Our Next.js application requires a robust authentication system to secure user data and provide personalized experiences. We need to decide on an authentication approach that balances development speed, security, maintainability, and scalability. The primary requirement is to implement Google OAuth for user authentication.
 
 ## Decision
-We will implement authentication using Supabase for the following reasons:
+We will implement authentication using Supabase with Google OAuth integration for the following reasons:
 
 ### Technical Requirements
 - Need to support email/password authentication
-- Requirement for OAuth providers (Google, GitHub, etc.)
+- Requirement for Google OAuth provider
 - Server-side rendering compatibility
 - Type safety with TypeScript
 - Session management
@@ -44,14 +44,14 @@ We will implement authentication using Supabase for the following reasons:
 ### Redirect URIs
 - **Local Development**: http://localhost:3000
 - **Production**: https://[domain].com (to be configured based on deployment)
-- **OAuth Callbacks**: Configured in Supabase dashboard for each OAuth provider
+- **OAuth Callbacks**: Configured in Supabase dashboard for Google OAuth provider
 - **Auth Callback Path**: /auth/callback (standard path for handling authentication redirects)
 
 ### Why Supabase?
 1. **Rapid Development**: Supabase provides a complete authentication backend without requiring custom server implementation
 2. **Built-in Security**: Handles password hashing, session management, and security best practices out-of-the-box
 3. **Database Integration**: Seamlessly integrates with Supabase's PostgreSQL database for user profiles and related data
-4. **OAuth Support**: Easy integration with popular OAuth providers
+4. **OAuth Support**: Easy integration with Google OAuth provider
 5. **Real-time Capabilities**: Can leverage real-time features for collaborative applications in the future
 6. **Scalability**: Managed infrastructure that scales automatically
 7. **Type Safety**: Excellent TypeScript support with generated types
@@ -62,6 +62,7 @@ We will implement authentication using Supabase for the following reasons:
 3. Implement protected route components
 4. Build login/signup UI components
 5. Configure environment variables for Supabase credentials
+6. Implement Google OAuth sign-in functionality
 
 ## Common Configuration Issues and Solutions
 
@@ -77,6 +78,19 @@ We will implement authentication using Supabase for the following reasons:
 6. Ensure that "Sign up enabled" is toggled on
 7. Save the changes
 
+### Issue: Google OAuth not working
+**Description**: When attempting to sign in with Google, the OAuth flow fails.
+
+**Solution**: This error occurs when Google OAuth is not properly configured in the Supabase dashboard. To fix this:
+1. Go to your Supabase dashboard at https://supabase.com/dashboard
+2. Select your project
+3. Navigate to the "Authentication" section in the sidebar
+4. Click on "Settings" under Authentication
+5. Ensure that "Google" OAuth provider is enabled
+6. Add the redirect URI for your application (e.g., http://localhost:3000/auth/callback)
+7. Configure Google OAuth credentials in the Supabase authentication settings
+8. Save the changes
+
 **Prevention**: When setting up a new Supabase project, always verify that the required authentication providers are enabled in the dashboard.
 
 ## Consequences
@@ -86,6 +100,7 @@ We will implement authentication using Supabase for the following reasons:
 - Industry-standard security practices
 - Easy maintenance and updates
 - Built-in user management dashboard
+- Google OAuth provides seamless user experience
 - Potential to leverage additional Supabase features (database, storage, real-time)
 
 ### Negative
@@ -93,6 +108,7 @@ We will implement authentication using Supabase for the following reasons:
 - Additional external dependency
 - Monthly costs that scale with usage
 - Less control over authentication implementation details
+- Google OAuth requires additional configuration steps
 
 ### Neutral
 - Learning curve for Supabase platform features
@@ -118,6 +134,7 @@ We will implement authentication using Supabase for the following reasons:
 - Team familiarity with Supabase
 - Integration with existing tech stack
 - Scalability needs
+- Requirement for Google OAuth integration
 
 ## Related Decisions
 - Tech stack includes Next.js with TypeScript
