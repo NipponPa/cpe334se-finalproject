@@ -1,21 +1,25 @@
 # Product Description
 
-This project is a template for a Next.js 15 application that provides a solid foundation for building a modern web application with a complete authentication system.
+This project is a comprehensive web application designed to help students manage events, tasks, and collaborations efficiently. It provides a centralized calendar where users can create and track events, set reminders, and collaborate with others through invitations and participant lists. Users can manage their personal profiles, view schedules in multiple calendar views, and receive timely notifications to stay organized.
 
 ## Problem Solved
-Starting a new web application project often involves significant boilerplate setup, especially for authentication. This template accelerates the initial development phase by providing a pre-configured, production-ready solution for user authentication, including:
-- User sign-up and sign-in (email/password and Google OAuth).
-- Secure session management.
-- Protected routes.
-- Password reset functionality.
+Students often struggle with managing multiple schedules, deadlines, and collaborative tasks across different platforms. This application solves this by providing a unified platform that combines event management, task tracking, and collaboration tools in one centralized calendar system. Students no longer need to juggle between multiple apps to manage their academic schedules, assignments, meetings, and group projects.
 
 ## How it Works
-The application serves as a landing page and a dashboard. Unauthenticated users are presented with a landing page and options to sign in or sign up. Once authenticated, users are redirected to a protected dashboard page.
+The application provides a dashboard where authenticated users can access their calendar, manage events and tasks, collaborate with others, and customize their profiles. The core functionality includes:
+
+- **Calendar Management**: Users can create, edit, and delete events on a visual calendar
+- **Task Tracking**: Users can create tasks with due dates, priorities, and reminders
+- **Collaboration Tools**: Users can invite others to events, create shared calendars, and manage participant lists
+- **Multiple Views**: Users can switch between day, week, and month views to better organize their schedules
+- **Notifications**: Users receive timely notifications for upcoming events and tasks
+- **Profile Management**: Users can maintain personal information and preferences
 
 The core user experience goals are:
-- **Seamless Authentication**: Provide a smooth and secure login/signup experience.
-- **Developer-Friendly**: Offer a clean, well-structured, and easily customizable codebase.
-- **Modern UI/UX**: Utilize a modern design system (ShadCN UI and Tailwind CSS) for a polished user interface.
+- **Centralized Organization**: Provide a single platform for managing all events, tasks, and collaborations.
+- **Intuitive Interface**: Offer a clean, well-structured, and easily navigable user interface.
+- **Collaboration Enhancement**: Enable seamless collaboration through shared calendars and event invitations.
+- **Timely Reminders**: Help users stay on track with customizable notifications and reminders.
 
 ## Target Audience
-This template is intended for developers who want to quickly bootstrap a Next.js project with a robust authentication system already in place.
+This application is intended for students who need an efficient way to manage their academic schedules, track tasks, and collaborate on events and projects. It's particularly useful for academic settings where students need to manage class schedules, assignment deadlines, and group project meetings.
