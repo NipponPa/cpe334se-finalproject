@@ -1,6 +1,7 @@
 # Project Brief
 
-*This file should be manually updated by the project owner.*
+This web application is designed to help students and users manage events, tasks, and collaborations efficiently. It provides a centralized calendar where users can create and track events, set reminders, and collaborate with others through invitations and participant lists. Users can manage their personal profiles, view schedules in multiple calendar views, and receive timely notifications to stay organized.
+
 
 ## Core Mission
 - **What is the primary goal of this project?**
