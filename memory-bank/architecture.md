@@ -67,6 +67,10 @@ The application uses a comprehensive database schema with the following core tab
 
 All tables are secured with Row Level Security (RLS) policies to ensure users only access their own data.
 
+## Authentication Synchronization
+
+The application uses a trigger-based approach to synchronize user data between Supabase's auth.users table and the application's public.users table. When a new user registers, a PostgreSQL trigger automatically creates a corresponding record in the public.users table, ensuring that user profile data is available for application features.
+
 ## Collaboration Flow
 Collaboration features enable students to invite others to events and manage participant lists for group projects and study sessions.
 

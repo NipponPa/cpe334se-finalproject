@@ -20,6 +20,7 @@ This project is a Next.js 15 application built with React 19 and TypeScript, des
 - **Database Schema**: Comprehensive schema with users, events, tasks, event_participants, user_preferences, and notifications tables
 - **Security**: Row Level Security (RLS) policies to ensure data privacy
 - **Migrations**: SQL migration files for database schema management
+- **Auth Synchronization**: PostgreSQL trigger and function to synchronize auth.users with public.users table
 
 ## Form Management
 - **Form Handling**: [React Hook Form](https://react-hook-form.com/)

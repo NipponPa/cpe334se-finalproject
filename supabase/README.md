@@ -41,3 +41,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ## Row Level Security (RLS)
 
 The schema includes Row Level Security policies to ensure users only access their own data. These are enabled by default in the migration.
+
+## Authentication Synchronization
+
+The application uses a PostgreSQL trigger and function to automatically synchronize user data between Supabase's auth.users table and the application's public.users table. When a new user registers, a corresponding record is automatically created in the public.users table, ensuring that user profile data is available for application features.
