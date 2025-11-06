@@ -17,6 +17,9 @@ This project is a Next.js 15 application built with React 19 and TypeScript, des
 - **Authentication Library**: `@supabase/supabase-js`
 - **Real-time Features**: Supabase real-time subscriptions for collaborative updates
 - **Providers**: Email/Password and Google OAuth
+- **Database Schema**: Comprehensive schema with users, events, tasks, event_participants, user_preferences, and notifications tables
+- **Security**: Row Level Security (RLS) policies to ensure data privacy
+- **Migrations**: SQL migration files for database schema management
 
 ## Form Management
 - **Form Handling**: [React Hook Form](https://react-hook-form.com/)

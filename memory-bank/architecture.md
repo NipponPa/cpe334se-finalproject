@@ -54,6 +54,19 @@ The application manages events and tasks through Supabase database tables with r
 3.  **Supabase Database**: Stores event and task data in dedicated tables with relationships to user accounts.
 4. **Real-time Updates**: Uses Supabase's real-time features to update calendars when events are modified by collaborators.
 
+## Database Schema
+
+The application uses a comprehensive database schema with the following core tables:
+
+- **users**: Extends Supabase auth with additional profile information
+- **events**: Stores calendar events with scheduling and location details
+- **tasks**: Manages tasks with due dates, priorities, and completion status
+- **event_participants**: Handles collaboration and invitations to events
+- **user_preferences**: Stores user-specific settings and preferences
+- **notifications**: Manages system notifications and reminders
+
+All tables are secured with Row Level Security (RLS) policies to ensure users only access their own data.
+
 ## Collaboration Flow
 Collaboration features enable students to invite others to events and manage participant lists for group projects and study sessions.
 
