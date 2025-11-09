@@ -39,7 +39,7 @@ const Calendar: React.FC = () => {
       const { data, error } = await supabase
         .from('events')
         .select('id, title, start_time, end_time, description, is_all_day')
-        .eq('user_id', user.id);
+        .eq('created_by', user.id);
 
       if (error) {
         console.error('Error fetching events:', error);
