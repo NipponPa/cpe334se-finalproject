@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import Calendar from '@/components/calendar/Calendar';
 
 export default function Home() {
   const { user, signOut } = useAuth();
@@ -14,8 +15,8 @@ export default function Home() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen flex items-center justify-center bg-[#353131]">
-        <div className="w-[400px] bg-[#353131] p-8 rounded-lg shadow-md flex flex-col items-center">
+      <div className="min-h-screen bg-[#353131] py-8 px-4">
+        <div className="max-w-4xl mx-auto mb-8">
           <h1 className="text-3xl font-bold mb-6 text-center text-[#FFD966]">Welcome</h1>
           
           <div className="w-full space-y-4">
@@ -43,6 +44,10 @@ export default function Home() {
           <div className="mt-6 text-[#FFD966] text-sm text-center">
             <p>This is a protected page. Only authenticated users can access this content.</p>
           </div>
+        </div>
+        
+        <div className="max-w-4xl mx-auto mt-8">
+          <Calendar />
         </div>
       </div>
     </ProtectedRoute>
