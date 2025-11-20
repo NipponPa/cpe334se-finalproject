@@ -26,14 +26,14 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
       <div className="flex items-center space-x-4">
         <button
           onClick={onPrevMonth}
-          className="bg-[#FFD966] hover:bg-yellow-500 text-[#353131] rounded-full w-8 h-8 flex items-center justify-center font-bold"
+          className="bg-[#FFD966] hover:bg-yellow-50 text-[#353131] rounded-full w-10 h-10 flex items-center justify-center font-bold"
         >
           {'<'}
         </button>
-        <h2 className="text-xl font-semibold">{monthYearString}</h2>
+        <h2 className="text-2xl font-semibold">{monthYearString}</h2>
         <button
           onClick={onNextMonth}
-          className="bg-[#FFD966] hover:bg-yellow-500 text-[#353131] rounded-full w-8 h-8 flex items-center justify-center font-bold"
+          className="bg-[#FFD966] hover:bg-yellow-50 text-[#353131] rounded-full w-10 h-10 flex items-center justify-center font-bold"
         >
           {'>'}
         </button>
@@ -41,13 +41,13 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
       <div className="flex space-x-2">
         <button
           onClick={onAddEvent}
-          className="bg-[#FFD966] hover:bg-yellow-500 text-[#353131] px-4 py-2 rounded-md font-bold"
+          className="bg-[#FFD966] hover:bg-yellow-50 text-[#353131] px-6 py-3 rounded-md font-bold text-lg"
         >
           Add Event
         </button>
         <button
           onClick={onGoToToday}
-          className="bg-[#FFD966] hover:bg-yellow-500 text-[#353131] px-4 py-2 rounded-md font-bold"
+          className="bg-[#FFD966] hover:bg-yellow-50 text-[#353131] px-6 py-3 rounded-md font-bold text-lg"
         >
           Today
         </button>

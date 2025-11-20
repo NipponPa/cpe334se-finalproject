@@ -21,7 +21,12 @@ The architecture is based on a Jamstack approach, where the frontend is a static
   - `ProtectedRoute.tsx`: A higher-order component that wraps pages to ensure only authenticated users can access them.
   - `ui/`: ShadCN UI components like `button.tsx`, `card.tsx`, etc.
   - `Calendar/`: Calendar-specific components
-    - `CalendarView.tsx`: Main calendar component with multiple view options
+    - `Calendar.tsx`: Main calendar component that fetches events from database and manages state
+    - `CalendarGrid.tsx`: Grid layout for calendar days
+    - `CalendarHeader.tsx`: Header with navigation controls
+    - `DayCell.tsx`: Individual day cell that displays events and handles multi-day events
+    - `EventDetailView.tsx`: Modal for viewing events on a selected day, including multi-day events
+    - `AddEventForm.tsx`: Form for creating new events with invitation capabilities
     - `EventCard.tsx`: Component for displaying individual events
     - `TaskList.tsx`: Component for displaying tasks
   - `Collaboration/`: Collaboration components
@@ -51,8 +56,10 @@ The application manages events and tasks through Supabase database tables with r
 
 1. **Calendar Components**: UI components render calendar views and handle user interactions for creating, editing, and deleting events/tasks.
 2.  **Calendar Context**: Manages the state of events, tasks, and calendar views, coordinating between UI components and the Supabase client.
-3.  **Supabase Database**: Stores event and task data in dedicated tables with relationships to user accounts.
+3. **Supabase Database**: Stores event and task data in dedicated tables with relationships to user accounts.
 4. **Real-time Updates**: Uses Supabase's real-time features to update calendars when events are modified by collaborators.
+5. **Multi-day Event Handling**: DayCell and EventDetailView components properly detect and display events that span multiple days by checking if the selected date falls within the event's date range (startDate <= selectedDate <= endDate).
+6. **Database Integration**: Calendar component fetches events from the database using proper authentication and filters by the current user's ID (created_by field).
 
 ## Database Schema
 

@@ -25,10 +25,16 @@ const EventDetailView: React.FC<EventDetailViewProps> = ({
     return null;
   }
 
-  // Filter events for the selected day
-  const dayEvents = events.filter(event => 
-    event.startTime.toDateString() === selectedDay.toDateString()
-  );
+  // Filter events for the selected day (including multi-day events)
+  const dayEvents = events.filter(event => {
+    // Convert dates to just the date part (without time) for comparison
+    const eventStartDate = new Date(event.startTime.toDateString());
+    const eventEndDate = new Date(event.endTime.toDateString());
+    const selectedDate = new Date(selectedDay.toDateString());
+    
+    // Check if the selected date falls within the event's date range
+    return selectedDate >= eventStartDate && selectedDate <= eventEndDate;
+  });
 
   // Sort events by start time
   const sortedEvents = dayEvents.sort((a, b) => 

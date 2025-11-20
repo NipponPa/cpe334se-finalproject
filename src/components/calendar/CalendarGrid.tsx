@@ -54,7 +54,7 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({ currentDate, events, onDayC
         {daysOfWeek.map((day, index) => (
           <div
             key={index}
-            className="py-2 text-center font-medium text-[#353131] border-r border-[#353131] last:border-r-0"
+            className="py-3 text-center font-medium text-[#353131] border-r border-[#353131] last:border-r-0 text-lg"
           >
             {day}
           </div>
