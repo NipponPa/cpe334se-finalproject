@@ -522,7 +522,7 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ isOpen, onClose, onSave, se
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-[#353131] text-white rounded-lg shadow-lg p-6 max-w-md w-full mx-4 border-[#FFD966]">
+      <div className="bg-[#353131] text-white rounded-lg shadow-lg p-6 max-w-md w-full mx-4 border-[#FFD966] max-h-[80vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <div>
             <h2 className="text-xl font-bold">{editingEvent ? 'Edit Event' : 'Add New Event'}</h2>
@@ -674,11 +674,13 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ isOpen, onClose, onSave, se
           
           {/* Friend Selection Section */}
           <div className="mb-6">
-            <FriendSelection
-              friends={friends}
-              selectedInvitees={invitees}
-              onSelectionChange={setInvitees}
-            />
+             <div className="max-h-[300px] ">
+              <FriendSelection
+                friends={friends}
+                selectedInvitees={invitees}
+                onSelectionChange={setInvitees}
+              />
+            </div>
           </div>
           
           <div className="flex justify-end space-x-3">
