@@ -65,7 +65,7 @@ export default function SignUpPage() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#FFD966]"
+              className="w-full px-3 py-2 border rounded text-black focus:outline-none focus:ring-2 focus:ring-[#FFD966]"
             />
           </div>
           <div>
@@ -76,7 +76,7 @@ export default function SignUpPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#FFD966]"
+              className="w-full px-3 py-2 border rounded text-black focus:outline-none focus:ring-2 focus:ring-[#FFD966]"
             />
           </div>
           
@@ -88,7 +88,7 @@ export default function SignUpPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#FFD966]"
+              className="w-full px-3 py-2 border rounded text-black focus:outline-none focus:ring-2 focus:ring-[#FFD966]"
             />
           </div>
 
@@ -100,7 +100,7 @@ export default function SignUpPage() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#FFD966]"
+              className="w-full px-3 py-2 border rounded text-black focus:outline-none focus:ring-2 focus:ring-[#FFD966]"
             />
           </div>
           
