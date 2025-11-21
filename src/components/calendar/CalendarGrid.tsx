@@ -7,15 +7,19 @@ interface Event {
   startTime: Date;
   endTime: Date;
   description: string;
+  isAllDay?: boolean;
 }
+
 
 interface CalendarGridProps {
   currentDate: Date;
   events: Event[];
   onDayClick: (date: Date) => void;
+  onEventClick?: (event: Event) => void;
+  selectedDay?: Date | null;
 }
 
-const CalendarGrid: React.FC<CalendarGridProps> = ({ currentDate, events, onDayClick }) => {
+const CalendarGrid: React.FC<CalendarGridProps> = ({ currentDate, events, onDayClick, onEventClick, selectedDay }) => {
   // Days of the week
   const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   
@@ -69,6 +73,8 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({ currentDate, events, onDayC
             date={date}
             events={events}
             onDayClick={onDayClick}
+            onEventClick={onEventClick}
+            isSelected={selectedDay ? date.toDateString() === selectedDay.toDateString() : false}
           />
         ))}
       </div>

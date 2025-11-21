@@ -12,6 +12,7 @@ interface Event {
   startTime: Date;
   endTime: Date;
   description: string;
+  isAllDay?: boolean;
 }
 
 interface SupabaseEvent {
@@ -20,7 +21,8 @@ interface SupabaseEvent {
   start_time: string;
   end_time: string;
   description?: string;
- created_by?: string;
+  created_by?: string;
+  is_all_day?: boolean;
 }
 
 interface CalendarProps {
@@ -34,11 +36,12 @@ const Calendar: React.FC<CalendarProps> = ({
   currentDate,
   onPrevMonth,
   onNextMonth,
-  onGoToToday,
+ onGoToToday,
 }) => {
-  const [selectedDay, setSelectedDay] = useState<Date | null>(null);
+ const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const [isAddEventFormOpen, setIsAddEventFormOpen] = useState(false);
   const [events, setEvents] = useState<Event[]>([]);
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   
   const { user } = useAuth();
   
@@ -70,13 +73,20 @@ const Calendar: React.FC<CalendarProps> = ({
           console.log('Raw events data from database:', data);
           
           // Convert date strings to Date objects
-          const formattedEvents = data.map((event: SupabaseEvent) => ({
-            id: event.id,
-            title: event.title,
-            startTime: new Date(event.start_time),
-            endTime: new Date(event.end_time),
-            description: event.description || ''
-          }));
+          const formattedEvents = data.map((event: SupabaseEvent) => {
+            // For all events, create Date objects from the ISO string
+            const startTime = new Date(event.start_time);
+            const endTime = new Date(event.end_time);
+            
+            return {
+              id: event.id,
+              title: event.title,
+              startTime: startTime,
+              endTime: endTime,
+              description: event.description || '',
+              isAllDay: event.is_all_day
+            };
+          });
           
           console.log('Formatted events:', formattedEvents);
           setEvents(formattedEvents);
@@ -101,55 +111,115 @@ const Calendar: React.FC<CalendarProps> = ({
   };
 
   const handleAddEvent = () => {
+    setEditingEvent(null); // Clear any editing event when adding a new event
     setIsAddEventFormOpen(true);
+  };
+
+  const handleEditEvent = (event: Event) => {
+    setEditingEvent(event);
+    setIsAddEventFormOpen(true);
+    // Set the selected day to the event's start date to show the context
+    setSelectedDay(new Date(event.startTime));
   };
 
   const handleAddEventFormClose = () => {
     setIsAddEventFormOpen(false);
-  };
+    setEditingEvent(null); // Clear editing event when closing form
+ };
 
   const handleAddEventSubmit = async (newEvent: Omit<Event, 'id'>) => {
     try {
-      console.log('Saving new event:', newEvent, 'for user:', user?.id);
+      console.log('Saving event:', newEvent, 'for user:', user?.id);
+      console.log('Editing event state:', editingEvent);
       
-      // Save event to Supabase database
-      const { data, error } = await supabase
-        .from('events')
-        .insert([{
-          title: newEvent.title,
-          start_time: newEvent.startTime.toISOString(),
-          end_time: newEvent.endTime.toISOString(),
-          description: newEvent.description,
-          created_by: user?.id // Associate event with current user
-        }])
-        .select();
+      if (editingEvent) {
+        // Update existing event
+        console.log('Updating existing event with ID:', editingEvent.id);
+        const { data, error } = await supabase
+          .from('events')
+          .update({
+            title: newEvent.title,
+            start_time: newEvent.startTime.toISOString(),
+            end_time: newEvent.endTime.toISOString(),
+            description: newEvent.description,
+            is_all_day: newEvent.isAllDay
+          })
+          .eq('id', editingEvent.id)
+          .select();
 
-      if (error) {
-        console.error('Error saving event:', error);
-        alert('Failed to save event to database: ' + error.message);
-        return;
-      }
+        if (error) {
+          console.error('Error updating event:', error);
+          alert('Failed to update event in database: ' + error.message);
+          return;
+        }
 
-      if (data && data.length > 0) {
-        console.log('Event saved successfully:', data[0]);
-        
-        // Add the new event to the local state with proper ID from database
-        const newEventWithId: Event = {
-          id: data[0].id,
-          title: data[0].title,
-          startTime: new Date(data[0].start_time),
-          endTime: new Date(data[0].end_time),
-          description: data[0].description || ''
-        };
-        setEvents(prevEvents => [...prevEvents, newEventWithId]);
+        if (data && data.length > 0) {
+          console.log('Event updated successfully:', data[0]);
+          
+          // Update the event in the local state
+          setEvents(prevEvents =>
+            prevEvents.map(event =>
+              event.id === editingEvent.id
+                ? {
+                    id: data[0].id,
+                    title: data[0].title,
+                    startTime: new Date(data[0].start_time),
+                    endTime: new Date(data[0].end_time),
+                    description: data[0].description || '',
+                    isAllDay: newEvent.isAllDay
+                  }
+                : event
+            )
+          );
+        }
+      } else {
+        // Create new event
+        console.log('Creating new event');
+        const { data, error } = await supabase
+          .from('events')
+          .insert([{
+            title: newEvent.title,
+            start_time: newEvent.startTime.toISOString(),
+            end_time: newEvent.endTime.toISOString(),
+            description: newEvent.description,
+            is_all_day: newEvent.isAllDay,
+            created_by: user?.id // Associate event with current user
+          }])
+          .select();
+
+        if (error) {
+          console.error('Error saving event:', error);
+          alert('Failed to save event to database: ' + error.message);
+          return;
+        }
+
+        if (data && data.length > 0) {
+          console.log('Event saved successfully:', data[0]);
+          
+          // Add the new event to the local state with proper ID from database
+          const newEventWithId: Event = {
+            id: data[0].id,
+            title: data[0].title,
+            startTime: new Date(data[0].start_time),
+            endTime: new Date(data[0].end_time),
+            description: data[0].description || '',
+            isAllDay: newEvent.isAllDay
+          };
+          setEvents(prevEvents => [...prevEvents, newEventWithId]);
+        }
       }
+      
+      // Success message
+      console.log('Event saved successfully to database');
     } catch (error) {
       console.error('Unexpected error saving event:', error);
       alert('An unexpected error occurred while saving the event');
     } finally {
       setIsAddEventFormOpen(false);
+      setEditingEvent(null); // Clear editing event after saving
+      console.log('Form closed and state reset');
     }
-  };
+ };
 
 
  return (
@@ -160,14 +230,16 @@ const Calendar: React.FC<CalendarProps> = ({
         onNextMonth={onNextMonth}
         onGoToToday={onGoToToday}
         onAddEvent={handleAddEvent}
+        selectedDay={selectedDay}
       />
-      <CalendarGrid currentDate={currentDate} events={events} onDayClick={handleDayClick} />
+      <CalendarGrid currentDate={currentDate} events={events} onDayClick={handleDayClick} onEventClick={handleEditEvent} selectedDay={selectedDay} />
       {selectedDay && (
         <EventDetailView
           selectedDay={selectedDay}
           events={events}
           onClose={handleCloseDetail}
           onAddEvent={handleAddEvent}
+          onEditEvent={handleEditEvent}
         />
       )}
       <AddEventForm
@@ -175,6 +247,7 @@ const Calendar: React.FC<CalendarProps> = ({
         onClose={handleAddEventFormClose}
         onSave={handleAddEventSubmit}
         selectedDay={selectedDay || new Date()}
+        editingEvent={editingEvent}
       />
     </div>
   );
