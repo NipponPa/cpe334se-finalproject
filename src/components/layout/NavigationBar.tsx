@@ -94,9 +94,8 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                 defaultText={user.email?.split('@')[0] || 'User'}
                 size="sm"
               />
-              <span>{user.email}</span>
+              {/* <span>{user.email}</span> */}
               {user.user_metadata?.username && <span>({user.user_metadata.username})</span>}
-              <svg className={`w-4 h-4 transition-transform ${isUserMenuOpen ? 'transform rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
             </button>
             {isUserMenuOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 text-black z-10">
