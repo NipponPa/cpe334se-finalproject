@@ -30,6 +30,7 @@ This project is a Next.js 15 application built with React 19 and TypeScript, des
 - **Calendar Libraries**: [date-fns](https://date-fns.org/) for date manipulation
 - **Drag and Drop**: [React DnD](https://react-dnd.github.io/react-dnd) or similar for calendar interactions
 - **Time Zone Handling**: [date-fns-tz](https://date-fns.org/v2.29.0/docs/Time-Zones) for accurate scheduling across time zones
+- **Multi-day Event Logic**: Custom date range checking in DayCell and EventDetailView components to display events that span multiple days
 
 ## Notifications
 - **Notification System**: [React Hot Toast](https://react-hot-toast.com/) or [Notistack](https://iamhosseindhv.com/notistack) for user notifications

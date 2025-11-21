@@ -3,15 +3,17 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 import { supabase } from '@/lib/supabase'
 import { User } from '@supabase/supabase-js'
+import { updateProfileWithGoogleAvatar } from '@/lib/profilePictureUtils'
 
 type AuthContextType = {
   user: User | null
-  signUp: (email: string, password: string) => Promise<any>
-  signIn: (email: string, password: string) => Promise<any>
+  // Using any for Supabase auth responses as they are complex types
+ signUp: (email: string, password: string) => Promise<any> // eslint-disable-line @typescript-eslint/no-explicit-any
+  signIn: (email: string, password: string) => Promise<any> // eslint-disable-line @typescript-eslint/no-explicit-any
   signInWithOAuth: (provider: 'google' | 'github' | 'facebook') => Promise<void>
   signOut: () => Promise<void>
-  resetPassword: (email: string) => Promise<any>
-  loading: boolean
+  resetPassword: (email: string) => Promise<any> // eslint-disable-line @typescript-eslint/no-explicit-any
+ loading: boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -29,9 +31,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // Listen for auth changes
       const { data: { subscription } } = await supabase.auth.onAuthStateChange(
-        (_event, session) => {
-          setUser(session?.user || null)
-          setLoading(false)
+        async (_event, session) => {
+          const currentUser = session?.user || null;
+          setUser(currentUser);
+          
+          // If user signed in with Google and doesn't have an avatar yet,
+          // try to set their Google profile picture as their avatar
+          if (currentUser && currentUser.app_metadata?.provider === 'google') {
+            const googleAvatar = currentUser.user_metadata?.avatar_url || currentUser.user_metadata?.picture;
+            if (googleAvatar) {
+              // Update the user's profile with the Google avatar
+              await updateProfileWithGoogleAvatar(currentUser.id, googleAvatar);
+            }
+          }
+          
+          setLoading(false);
         }
       )
 
