@@ -41,12 +41,15 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ isOpen, onClose, onSave, se
   const [description, setDescription] = useState('');
   const [invitees, setInvitees] = useState<string[]>([]);
   const [friends, setFriends] = useState<Friend[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const [isAllDay, setIsAllDay] = useState(false);
   const { user } = useAuth();
+  
+  // Track if component is mounted to prevent state updates on unmounted components
+ const isMountedRef = React.useRef(true);
 
   // Initialize form when editing an event
   useEffect(() => {
@@ -168,9 +171,24 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ isOpen, onClose, onSave, se
   useEffect(() => {
     if (isOpen && user) {
       setError(null); // Reset error state when opening the form
+      setLoading(true); // Ensure loading state is set when opening
       fetchFriends();
+    } else if (!isOpen) {
+      // When form is closed, ensure loading state is reset
+      setLoading(false);
     }
   }, [isOpen, user]);
+
+  // Track the fetch request to prevent multiple simultaneous requests
+  const fetchAbortController = React.useRef<AbortController | null>(null);
+
+  // Update the mounted ref when component mounts/unmounts
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   // Add event listener for visibility change to handle tab switching
   useEffect(() => {
@@ -194,29 +212,47 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ isOpen, onClose, onSave, se
   }, [isOpen, user, loading, error]);
 
   const fetchFriends = async (retryCount = 0) => {
+    // Check if component is still mounted before proceeding
+    if (!isMountedRef.current) return;
+    
+    // Cancel any existing fetch request to prevent multiple simultaneous requests
+    if (fetchAbortController.current) {
+      fetchAbortController.current.abort();
+    }
+    
+    // Create a new abort controller for this request
+    fetchAbortController.current = new AbortController();
+    
     try {
       // Check session validity before fetching
       const isValid = await checkSessionValidity();
       if (!isValid) {
         console.error('Session is not valid, cannot fetch friends');
-        setFriends([]);
-        setError('Authentication session expired. Please refresh the page or sign in again.');
-        setLoading(false);
+        if (isMountedRef.current) {
+          setFriends([]);
+          setError('Authentication session expired. Please refresh the page or sign in again.');
+          setLoading(false);
+        }
+        // Clean up the abort controller
+        fetchAbortController.current = null;
         return;
       }
 
-      setLoading(true);
+      // Only set loading to true if not already loading
+      // This prevents race conditions when multiple fetches are triggered
+      if (!loading && isMountedRef.current) {
+        setLoading(true);
+      }
       
       // Set a timeout for the fetch operation
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      const timeoutId = setTimeout(() => fetchAbortController.current?.abort(), 10000); // 10 second timeout
       
       // Fetch all users except the current user
       const { data, error, status } = await supabase
         .from('users')
         .select('id, full_name, email, avatar_url')
         .neq('id', user?.id || '')
-        .abortSignal(controller.signal);
+        .abortSignal(fetchAbortController.current.signal);
 
       clearTimeout(timeoutId);
       
@@ -240,7 +276,9 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ isOpen, onClose, onSave, se
           email: user.email,
           avatar: user.avatar_url
         }));
-        setFriends(formattedFriends);
+        if (isMountedRef.current) {
+          setFriends(formattedFriends);
+        }
       }
     } catch (error) {
       console.error('Error in fetchFriends:', error);
@@ -250,27 +288,31 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ isOpen, onClose, onSave, se
         // Handle timeout specifically
         if (error.name === 'AbortError') {
           console.error('Fetch friends operation timed out');
-          setFriends([]);
-          setError('Loading friends timed out. Please check your connection and try again.');
+          if (isMountedRef.current) {
+            setFriends([]);
+            setError('Loading friends timed out. Please check your connection and try again.');
+          }
         } else {
           // Check if the error has a status property (for Supabase errors)
           // Use type assertion carefully here since we're checking for the property existence
-          if ('status' in error && error.status === 401 && retryCount < 2) {
+          if ('status' in error && error.status === 401 && retryCount < 2 && isMountedRef.current) {
             // If unauthorized, try to refresh session and retry
             console.log(`Retrying fetchFriends due to auth error, attempt ${retryCount + 1}`);
             await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
             return fetchFriends(retryCount + 1);
-          } else {
+          } else if (isMountedRef.current) {
             setFriends([]);
             setError('Failed to load friends. Please try again later.');
           }
         }
-      } else {
+      } else if (isMountedRef.current) {
         setFriends([]);
         setError('An unexpected error occurred while loading friends.');
       }
     } finally {
-      setLoading(false);
+      if (isMountedRef.current) {
+        setLoading(false);
+      }
     }
   };
 
@@ -313,9 +355,11 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ isOpen, onClose, onSave, se
               <button
                 onClick={() => {
                   // Set friends to empty array and continue with the form
-                  setFriends([]);
-                  setLoading(false);
-                  setError(null);
+                  if (isMountedRef.current) {
+                    setFriends([]);
+                    setLoading(false);
+                    setError(null);
+                  }
                 }}
                 className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 focus:outline-none"
               >
