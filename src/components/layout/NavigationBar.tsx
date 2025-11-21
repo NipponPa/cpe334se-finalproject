@@ -51,10 +51,17 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
   }, [user]);
 
   return (
-    <nav className="bg-[#373434] text-[#FFDA68] p-4 flex items-center justify-between">
+    <nav className="bg-[#373434] text-[#FFDA68] p-[5px] pl-[15px] flex items-center justify-between">
       {/* Logo */}
-      <div className="text-xl font-bold">
-        <Link href="/">PJ Pakjim Planner</Link>
+      <div className="leading-tight text-center">
+        <Link href="/" className="inline-block">
+          <span className="block text-xl font-bold italic">
+            PJ
+          </span>
+          <span className="block text-xs italic font-light">
+            pakjim planner
+          </span>
+        </Link>
       </div>
 
       {/* Desktop and Tablet: Date Controls & User Info */}
