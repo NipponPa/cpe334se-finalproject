@@ -30,6 +30,7 @@ export default function ProtectedRoute({
 
   useEffect(() => {
     if (!loading && !user) {
+      // Redirect to login if user is not authenticated
       router.push('/login')
     }
   }, [user, loading, router])

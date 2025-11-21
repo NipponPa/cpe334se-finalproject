@@ -3,6 +3,34 @@
 ## System Overview
 The calendar application is built with React/Next.js and uses Supabase for backend services including authentication and database operations. The UI follows a component-based architecture with clear separation of concerns.
 
+## Profile Picture System Architecture
+The application includes a comprehensive profile picture management system with the following components:
+
+### Storage Layer
+- Supabase Storage bucket named `profile-pictures` configured for public access
+- File validation and size limits (max 5MB) with support for JPEG, PNG, GIF, and WEBP formats
+- Files are organized in user-specific folders using user ID as prefix (e.g., `user-id/1234567890_profile.jpg`)
+
+### Database Integration
+- Enhanced `users` table with profile picture metadata columns:
+  - `avatar_url`: Public URL of the profile picture
+  - `profile_image_filename`: Original filename in storage
+  - `profile_image_size`: File size in bytes
+  - `profile_image_type`: MIME type of the image
+  - `profile_image_updated_at`: Timestamp of last update
+- Row Level Security (RLS) policies ensure users can only manage their own profile pictures
+
+### Backend Services
+- Supabase Edge Functions for image processing and validation
+- Custom database functions for updating profile picture metadata
+- Security validation to prevent unauthorized access and malicious uploads
+
+### Frontend Components
+- `ProfilePictureUpload.tsx`: Component for uploading and managing profile pictures with drag-and-drop support
+- `ProfilePictureDisplay.tsx`: Component for displaying profile pictures with fallback to user initials
+- Client-side image optimization before upload (resized to 800x800px with 80% quality)
+- OAuth integration to support Google profile pictures as defaults
+
 ## Component Structure
 - `Calendar.tsx`: Main calendar component that manages state and coordinates other components
 - `CalendarHeader.tsx`: Displays month/year and contains the "Add Event" button

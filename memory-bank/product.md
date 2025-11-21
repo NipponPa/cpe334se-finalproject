@@ -17,9 +17,18 @@ The calendar application is a React/Next.js application that allows users to cre
 - Editable events functionality: Users can click on existing events to edit them, with the form pre-populated with current event details and clear UI indicators distinguishing between creating new events and editing existing ones.
 - Proper date handling: Fixed timezone-related issues that were causing incorrect dates, ensuring all event types (single-day, multi-day, all-day) display correctly without date shifting.
 
+## Profile Picture Management
+- User profile pictures with upload, update, and deletion capabilities
+- Support for multiple image formats (JPEG, PNG, GIF, WEBP) up to 5MB
+- Client-side image optimization for faster loading and reduced storage
+- Drag-and-drop interface with preview functionality
+- OAuth integration to automatically use Google profile pictures as defaults
+- Fallback to user initials when no profile picture is set
+
 ## User Experience Goals
 - Intuitive event creation with clear visual cues about the target date
 - Seamless multi-day event creation and visualization
 - Easy editing of existing events
 - Consistent date handling across all timezones
 - Responsive and accessible UI components
+- Personalized user experience through profile pictures

@@ -9,7 +9,8 @@
 ## Backend Services
 - Supabase for authentication and database operations
 - PostgreSQL database for event storage
-- Supabase Edge Functions for sending invitations
+- Supabase Storage for profile picture management
+- Supabase Edge Functions for sending invitations and image processing
 
 ## Key Implementation Patterns
 
@@ -37,9 +38,25 @@
 - Pre-population of form with existing event data
 - Proper update operations that preserve original event creator
 
+### Profile Picture Management
+- Client-side image optimization using canvas (800x800px max, 80% quality)
+- File validation for type (JPEG, PNG, GIF, WEBP) and size (max 5MB)
+- Drag-and-drop upload interface with preview functionality
+- Unique filename generation using user ID and timestamp
+- OAuth integration to support Google profile pictures as defaults
+
+## Security Implementation
+- Row Level Security (RLS) policies restricting users to their own data
+- Storage policies ensuring users can only access their own profile pictures
+- Filename validation to prevent directory traversal attacks
+- MIME type validation on both client and server side
+
 ## Critical Implementation Paths
 - AddEventForm.tsx: Enhanced with date/time pickers, all-day toggle, and edit mode
 - Calendar.tsx: Updated state management and database operations
 - DayCell.tsx: Enhanced event display and selection feedback
 - EventDetailView.tsx: Added edit functionality for events
 - CalendarGrid.tsx: Updated to properly handle multi-day events
+- ProfilePictureUpload.tsx: Component for uploading and managing profile pictures
+- ProfilePictureDisplay.tsx: Component for displaying profile pictures with fallbacks
+- profilePictureUtils.ts: Utility functions for handling uploads, deletions, and validations
