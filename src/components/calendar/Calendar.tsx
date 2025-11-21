@@ -23,8 +23,19 @@ interface SupabaseEvent {
  created_by?: string;
 }
 
-const Calendar: React.FC = () => {
-  const [currentDate, setCurrentDate] = useState(new Date());
+interface CalendarProps {
+  currentDate: Date;
+  onPrevMonth: () => void;
+  onNextMonth: () => void;
+  onGoToToday: () => void;
+}
+
+const Calendar: React.FC<CalendarProps> = ({
+  currentDate,
+  onPrevMonth,
+  onNextMonth,
+  onGoToToday,
+}) => {
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const [isAddEventFormOpen, setIsAddEventFormOpen] = useState(false);
   const [events, setEvents] = useState<Event[]>([]);
@@ -140,35 +151,14 @@ const Calendar: React.FC = () => {
     }
   };
 
-  const handlePrevMonth = () => {
-    setCurrentDate(prevDate => {
-      const newDate = new Date(prevDate);
-      newDate.setMonth(newDate.getMonth() - 1);
-      newDate.setDate(1); // Set to first day of the month
-      return newDate;
-    });
-  };
-
-  const handleNextMonth = () => {
-    setCurrentDate(prevDate => {
-      const newDate = new Date(prevDate);
-      newDate.setMonth(newDate.getMonth() + 1);
-      newDate.setDate(1); // Set to first day of the month
-      return newDate;
-    });
-  };
-
-  const handleGoToToday = () => {
-    setCurrentDate(new Date());
-  };
 
  return (
     <div className="bg-[#353131] text-white rounded-lg shadow-lg p-8 max-w-6xl mx-auto border border-[#FFD966]">
       <CalendarHeader
         currentDate={currentDate}
-        onPrevMonth={handlePrevMonth}
-        onNextMonth={handleNextMonth}
-        onGoToToday={handleGoToToday}
+        onPrevMonth={onPrevMonth}
+        onNextMonth={onNextMonth}
+        onGoToToday={onGoToToday}
         onAddEvent={handleAddEvent}
       />
       <CalendarGrid currentDate={currentDate} events={events} onDayClick={handleDayClick} />
