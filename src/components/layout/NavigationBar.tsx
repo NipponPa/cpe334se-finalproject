@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Bell, ChevronLeft, ChevronRight, Menu } from 'lucide-react';
+import { Bell, ChevronLeft, ChevronRight, Menu, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
+import ProfilePictureDisplay from '@/components/profile/ProfilePictureDisplay';
 
 interface NavigationBarProps {
   currentDate: Date;
@@ -16,15 +18,37 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
   currentDate,
   onPrevMonth,
   onNextMonth,
-  onGoToToday,
+ onGoToToday,
   notificationCount = 0,
   onNotificationClick,
 }) => {
   const { user, signOut } = useAuth();
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setUserMenuOpen] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   const monthYear = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+  // Fetch user's avatar URL when user changes
+  useEffect(() => {
+    const fetchUserAvatar = async () => {
+      if (user) {
+        const { data, error } = await supabase
+          .from('users')
+          .select('avatar_url')
+          .eq('id', user.id)
+          .single();
+          
+        if (data?.avatar_url) {
+          setAvatarUrl(data.avatar_url);
+        }
+      } else {
+        setAvatarUrl(null); // Reset when user logs out
+      }
+    };
+    
+    fetchUserAvatar();
+  }, [user]);
 
   return (
     <nav className="bg-[#373434] text-[#FFDA68] p-4 flex items-center justify-between">
@@ -65,15 +89,35 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
         {user && (
           <div className="relative">
             <button onClick={() => setUserMenuOpen(!isUserMenuOpen)} className="flex items-center space-x-2">
+              <ProfilePictureDisplay
+                imageUrl={avatarUrl}
+                defaultText={user.email?.split('@')[0] || 'User'}
+                size="sm"
+              />
               <span>{user.email}</span>
               {user.user_metadata?.username && <span>({user.user_metadata.username})</span>}
               <svg className={`w-4 h-4 transition-transform ${isUserMenuOpen ? 'transform rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
             </button>
             {isUserMenuOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 text-black z-10">
-                <div className="px-4 py-2 text-sm text-gray-700">{user.email}</div>
-                {user.user_metadata?.username && <div className="px-4 py-2 text-sm text-gray-700">{user.user_metadata.username}</div>}
+                <div className="flex items-center space-x-2 px-4 py-2">
+                  <ProfilePictureDisplay
+                    imageUrl={avatarUrl}
+                    defaultText={user.email?.split('@')[0] || 'User'}
+                    size="sm"
+                  />
+                  <div>
+                    <div className="text-sm font-medium">{user.email}</div>
+                    {user.user_metadata?.username && <div className="text-xs text-gray-500">{user.user_metadata.username}</div>}
+                  </div>
+                </div>
                 <div className="border-t border-gray-200"></div>
+                <Link href="/profile" className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onClick={() => setUserMenuOpen(false)}>
+                  <div className="flex items-center">
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                  </div>
+                </Link>
                 <button onClick={signOut} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                   Sign Out
                 </button>
@@ -113,15 +157,30 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
             {notificationCount > 0 && (
                <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full">
                 {notificationCount}
-              </span>
+               </span>
             )}
           </button>
           
           {/* User Info */}
           {user && (
             <div className="border-t border-gray-500 pt-2">
-                <div className="px-2 py-1 text-sm">{user.email}</div>
-                {user.user_metadata?.username && <div className="px-2 py-1 text-sm">{user.user_metadata.username}</div>}
+                <div className="flex items-center space-x-2 px-2 py-1">
+                  <ProfilePictureDisplay
+                    imageUrl={avatarUrl}
+                    defaultText={user.email?.split('@')[0] || 'User'}
+                    size="sm"
+                  />
+                  <div>
+                    <div className="text-sm">{user.email}</div>
+                    {user.user_metadata?.username && <div className="text-xs">{user.user_metadata.username}</div>}
+                  </div>
+                </div>
+                <Link href="/profile" className="block w-full text-left px-2 py-2 text-sm hover:bg-[#4a4747] rounded" onClick={() => setMobileMenuOpen(false)}>
+                  <div className="flex items-center">
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                  </div>
+                </Link>
                 <button onClick={signOut} className="block w-full text-left px-2 py-2 text-sm hover:bg-[#4a4747] rounded">
                     Sign Out
                 </button>
