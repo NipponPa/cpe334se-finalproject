@@ -64,7 +64,7 @@ export default function ResetPasswordPage() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
-                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#FFD966]"
+                className="w-full px-3 py-2 border rounded text-black focus:outline-none focus:ring-2 focus:ring-[#FFD966]"
               />
             </div>
             <div>
@@ -75,7 +75,7 @@ export default function ResetPasswordPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#FFD966]"
+                className="w-full px-3 py-2 border rounded text-black focus:outline-none focus:ring-2 focus:ring-[#FFD966]"
               />
             </div>
             
@@ -87,7 +87,7 @@ export default function ResetPasswordPage() {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 required
-                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#FFD966]"
+                className="w-full px-3 py-2 border rounded text-black focus:outline-none focus:ring-2 focus:ring-[#FFD966]"
               />
             </div>
 
@@ -99,7 +99,7 @@ export default function ResetPasswordPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
-                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#FFD966]"
+                className="w-full px-3 py-2 border rounded text-black focus:outline-none focus:ring-2 focus:ring-[#FFD966]"
               />
             </div>
             
