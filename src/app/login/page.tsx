@@ -56,7 +56,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#FFD966]"
+              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#FFD966] text-black"
             />
           </div>
           <div>
@@ -67,7 +67,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#FFD966]"
+              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#FFD966] text-black"
             />
           </div>
           <div className="text-right mb-2">
@@ -87,13 +87,13 @@ export default function LoginPage() {
         >
           Sign up
         </Button>
-        <Button
+        <button
           type="button"
           onClick={() => handleOAuthSignIn('google')}
-          className="w-full py-2 mt-4 bg-white text-[#353131] rounded flex items-center justify-center font-bold shadow hover:bg-gray-100"
+          className="w-full py-2 mt-4 bg-white text-black rounded flex items-center justify-center font-bold shadow hover:bg-gray-300"
         >
           <span className="mr-2">Sign in with Google</span>
-        </Button>
+        </button>
       </div>
     </div>
   );
