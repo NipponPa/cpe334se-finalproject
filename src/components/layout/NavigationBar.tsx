@@ -106,8 +106,17 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                     size="sm"
                   />
                   <div>
-                    <div className="text-sm font-medium">{user.email}</div>
-                    {user.user_metadata?.username && <div className="text-xs text-gray-500">{user.user_metadata.username}</div>}
+                    <div
+                      className="text-sm font-medium max-w-[120px] truncate"
+                      title={user.email || ''}
+                    >
+                      {user.email}
+                    </div>
+                    {user.user_metadata?.username && (
+                      <div className="text-xs text-gray-500">
+                        {user.user_metadata.username}
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="border-t border-gray-200"></div>
@@ -170,7 +179,11 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                     size="sm"
                   />
                   <div>
-                    <div className="text-sm">{user.email}</div>
+                    <div
+                      className="text-sm max-w-[200px] truncate"
+                      title={user.email || ''}>
+                      {user.email}
+                    </div>
                     {user.user_metadata?.username && <div className="text-xs">{user.user_metadata.username}</div>}
                   </div>
                 </div>
