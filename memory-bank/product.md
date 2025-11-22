@@ -1,25 +1,34 @@
-# Product Description
+# Calendar Application Product Description
 
-This project is a comprehensive web application designed to help students manage events, tasks, and collaborations efficiently. It provides a centralized calendar where users can create and track events, set reminders, and collaborate with others through invitations and participant lists. Users can manage their personal profiles, view schedules in multiple calendar views, and receive timely notifications to stay organized.
+## Overview
+The calendar application is a React/Next.js application that allows users to create, view, and manage events. It integrates with Supabase for authentication and database operations, providing a full-featured calendar experience with visual indicators and intuitive event management.
 
-## Problem Solved
-Students often struggle with managing multiple schedules, deadlines, and collaborative tasks across different platforms. This application solves this by providing a unified platform that combines event management, task tracking, and collaboration tools in one centralized calendar system. Students no longer need to juggle between multiple apps to manage their academic schedules, assignments, meetings, and group projects.
+## Core Features
+- User authentication and authorization
+- Month view calendar with day selection
+- Event creation with title, description, start/end times
+- Visual indicators for events on calendar days
+- Friend selection for event invitations
+- Event detail view showing all events for a selected day
 
-## How it Works
-The application provides a dashboard where authenticated users can access their calendar, manage events and tasks, collaborate with others, and customize their profiles. The core functionality includes:
+## Enhanced Features
+- Visual date selection indicators: The calendar now clearly shows which day is selected when creating events, with visual feedback in the form of highlighted days and date displays in the AddEventForm header.
+- Multi-day event support: Users can now create events that span multiple days, with proper visualization in the calendar grid showing start/middle/end day indicators.
+- Editable events functionality: Users can click on existing events to edit them, with the form pre-populated with current event details and clear UI indicators distinguishing between creating new events and editing existing ones.
+- Proper date handling: Fixed timezone-related issues that were causing incorrect dates, ensuring all event types (single-day, multi-day, all-day) display correctly without date shifting.
 
-- **Calendar Management**: Users can create, edit, and delete events on a visual calendar
-- **Task Tracking**: Users can create tasks with due dates, priorities, and reminders
-- **Collaboration Tools**: Users can invite others to events, create shared calendars, and manage participant lists
-- **Multiple Views**: Users can switch between day, week, and month views to better organize their schedules
-- **Notifications**: Users receive timely notifications for upcoming events and tasks
-- **Profile Management**: Users can maintain personal information and preferences
+## Profile Picture Management
+- User profile pictures with upload, update, and deletion capabilities
+- Support for multiple image formats (JPEG, PNG, GIF, WEBP) up to 5MB
+- Client-side image optimization for faster loading and reduced storage
+- Drag-and-drop interface with preview functionality
+- OAuth integration to automatically use Google profile pictures as defaults
+- Fallback to user initials when no profile picture is set
 
-The core user experience goals are:
-- **Centralized Organization**: Provide a single platform for managing all events, tasks, and collaborations.
-- **Intuitive Interface**: Offer a clean, well-structured, and easily navigable user interface.
-- **Collaboration Enhancement**: Enable seamless collaboration through shared calendars and event invitations.
-- **Timely Reminders**: Help users stay on track with customizable notifications and reminders.
-
-## Target Audience
-This application is intended for students who need an efficient way to manage their academic schedules, track tasks, and collaborate on events and projects. It's particularly useful for academic settings where students need to manage class schedules, assignment deadlines, and group project meetings.
+## User Experience Goals
+- Intuitive event creation with clear visual cues about the target date
+- Seamless multi-day event creation and visualization
+- Easy editing of existing events
+- Consistent date handling across all timezones
+- Responsive and accessible UI components
+- Personalized user experience through profile pictures

@@ -6,6 +6,7 @@ interface Event {
   startTime: Date;
   endTime: Date;
   description: string;
+  isAllDay?: boolean;
 }
 
 interface EventDetailViewProps {
@@ -13,13 +14,15 @@ interface EventDetailViewProps {
   events: Event[];
   onClose: () => void;
   onAddEvent: () => void;
+  onEditEvent?: (event: Event) => void;
 }
 
-const EventDetailView: React.FC<EventDetailViewProps> = ({ 
-  selectedDay, 
-  events, 
-  onClose, 
-  onAddEvent 
+const EventDetailView: React.FC<EventDetailViewProps> = ({
+  selectedDay,
+  events,
+  onClose,
+  onAddEvent,
+  onEditEvent
 }) => {
   if (!selectedDay) {
     return null;
@@ -28,9 +31,9 @@ const EventDetailView: React.FC<EventDetailViewProps> = ({
   // Filter events for the selected day (including multi-day events)
   const dayEvents = events.filter(event => {
     // Convert dates to just the date part (without time) for comparison
-    const eventStartDate = new Date(event.startTime.toDateString());
-    const eventEndDate = new Date(event.endTime.toDateString());
-    const selectedDate = new Date(selectedDay.toDateString());
+    const eventStartDate = new Date(event.startTime.getFullYear(), event.startTime.getMonth(), event.startTime.getDate());
+    const eventEndDate = new Date(event.endTime.getFullYear(), event.endTime.getMonth(), event.endTime.getDate());
+    const selectedDate = new Date(selectedDay.getFullYear(), selectedDay.getMonth(), selectedDay.getDate());
     
     // Check if the selected date falls within the event's date range
     return selectedDate >= eventStartDate && selectedDate <= eventEndDate;
@@ -65,22 +68,48 @@ const EventDetailView: React.FC<EventDetailViewProps> = ({
         <div className="mb-6">
           {sortedEvents.length > 0 ? (
             <div className="space-y-3">
-              {sortedEvents.map(event => (
-                <div 
-                  key={event.id} 
-                  className="p-3 bg-[#4a4646] rounded border border-[#FFD966]"
-                >
-                  <h3 className="font-semibold text-[#FFD966]">{event.title}</h3>
-                  <p className="text-sm">{event.description}</p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    {event.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - 
-                    {event.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </p>
-                </div>
-              ))}
+              {sortedEvents.map(event => {
+                const isMultiDay = event.startTime.toDateString() !== event.endTime.toDateString();
+                const isAllDay = event.isAllDay ||
+                  (event.startTime.getHours() === 0 &&
+                   event.startTime.getMinutes() === 0 &&
+                   event.endTime.getHours() === 23 &&
+                   event.endTime.getMinutes() === 59);
+                
+                return (
+                  <div
+                    key={event.id}
+                    className="p-3 bg-[#4a4646] rounded border border-[#FFD966] relative"
+                  >
+                    <h3 className="font-semibold text-[#FFD966]">{event.title}</h3>
+                    <p className="text-sm">{event.description}</p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      {isAllDay ? (
+                        isMultiDay ? (
+                          `All day: ${event.startTime.toLocaleDateString()} - ${event.endTime.toLocaleDateString()}`
+                        ) : (
+                          'All day'
+                        )
+                      ) : isMultiDay ? (
+                        `${event.startTime.toLocaleDateString()} ${event.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${event.endTime.toLocaleDateString()} ${event.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+                      ) : (
+                        `${event.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${event.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+                      )}
+                    </p>
+                    {onEditEvent && (
+                      <button
+                        onClick={() => onEditEvent(event)}
+                        className="absolute top-2 right-2 text-xs bg-[#FFD966] text-[#353131] px-2 py-1 rounded hover:bg-[#ffc827] focus:outline-none"
+                      >
+                        Edit
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           ) : (
-            <p className="text-center py-4 text-gray-400">No events scheduled</p>
+            <p className="text-center py-4 text-gray-40">No events scheduled</p>
           )}
         </div>
         

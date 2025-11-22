@@ -51,10 +51,17 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
   }, [user]);
 
   return (
-    <nav className="bg-[#373434] text-[#FFDA68] p-4 flex items-center justify-between">
+    <nav className="bg-[#373434] text-[#FFDA68] p-[5px] pl-[15px] flex items-center justify-between">
       {/* Logo */}
-      <div className="text-xl font-bold">
-        <Link href="/">PJ Pakjim Planner</Link>
+      <div className="leading-tight text-center">
+        <Link href="/" className="inline-block">
+          <span className="block text-xl font-bold italic">
+            PJ
+          </span>
+          <span className="block text-xs italic font-light">
+            pakjim planner
+          </span>
+        </Link>
       </div>
 
       {/* Desktop and Tablet: Date Controls & User Info */}
@@ -94,9 +101,8 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                 defaultText={user.email?.split('@')[0] || 'User'}
                 size="sm"
               />
-              <span>{user.email}</span>
+              {/* <span>{user.email}</span> */}
               {user.user_metadata?.username && <span>({user.user_metadata.username})</span>}
-              <svg className={`w-4 h-4 transition-transform ${isUserMenuOpen ? 'transform rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
             </button>
             {isUserMenuOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 text-black z-10">
@@ -107,8 +113,17 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                     size="sm"
                   />
                   <div>
-                    <div className="text-sm font-medium">{user.email}</div>
-                    {user.user_metadata?.username && <div className="text-xs text-gray-500">{user.user_metadata.username}</div>}
+                    <div
+                      className="text-sm font-medium max-w-[120px] truncate"
+                      title={user.email || ''}
+                    >
+                      {user.email}
+                    </div>
+                    {user.user_metadata?.username && (
+                      <div className="text-xs text-gray-500">
+                        {user.user_metadata.username}
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="border-t border-gray-200"></div>
@@ -171,7 +186,11 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                     size="sm"
                   />
                   <div>
-                    <div className="text-sm">{user.email}</div>
+                    <div
+                      className="text-sm max-w-[200px] truncate"
+                      title={user.email || ''}>
+                      {user.email}
+                    </div>
                     {user.user_metadata?.username && <div className="text-xs">{user.user_metadata.username}</div>}
                   </div>
                 </div>

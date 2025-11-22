@@ -1,50 +1,62 @@
-# Technologies Used
+# Technology Stack and Implementation Details
 
-This project is a Next.js 15 application built with React 19 and TypeScript, designed for event, task, and collaboration management.
+## Frontend Technologies
+- React 18+ with TypeScript
+- Next.js framework
+- Tailwind CSS for styling
+- Component-based architecture
 
-## Core Technologies
-- **Framework**: [Next.js 15.5.4](https://nextjs.org/)
-- **UI Library**: [React 19.1.0](https://reactjs.org/)
-- **Language**: [TypeScript](https://www.typescriptlang.org/)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **UI Components**: [ShadCN UI](https://ui.shadcn.com/) built on [Radix UI Primitives](https://www.radix-ui.com/)
-- **Icons**: [Lucide React](https://lucide.dev/)
-- **Calendar Components**: [FullCalendar](https://fullcalendar.io/) or custom calendar implementations for event visualization
+## Backend Services
+- Supabase for authentication and database operations
+- PostgreSQL database for event storage
+- Supabase Storage for profile picture management
+- Supabase Edge Functions for sending invitations and image processing
 
-## Backend & Data Management
-- **Backend-as-a-Service**: [Supabase](https://supabase.com/)
-- **Database**: PostgreSQL via Supabase
-- **Authentication Library**: `@supabase/supabase-js`
-- **Real-time Features**: Supabase real-time subscriptions for collaborative updates
-- **Providers**: Email/Password and Google OAuth
-- **Database Schema**: Comprehensive schema with users, events, tasks, event_participants, user_preferences, and notifications tables
-- **Security**: Row Level Security (RLS) policies to ensure data privacy
-- **Migrations**: SQL migration files for database schema management
-- **Auth Synchronization**: PostgreSQL trigger and function to synchronize auth.users with public.users table
+## Key Implementation Patterns
 
-## Form Management
-- **Form Handling**: [React Hook Form](https://react-hook-form.com/)
-- **Schema Validation**: [Zod](https://zod.dev/)
+### Date Handling
+- Proper timezone conversion to prevent date shifting
+- UTC storage in database with local time display
+- Special handling for all-day events to maintain correct dates
+- Multi-day event support with proper start/end date ranges
 
-## Calendar & Scheduling
-- **Calendar Libraries**: [date-fns](https://date-fns.org/) for date manipulation
-- **Drag and Drop**: [React DnD](https://react-dnd.github.io/react-dnd) or similar for calendar interactions
-- **Time Zone Handling**: [date-fns-tz](https://date-fns.org/v2.29.0/docs/Time-Zones) for accurate scheduling across time zones
-- **Multi-day Event Logic**: Custom date range checking in DayCell and EventDetailView components to display events that span multiple days
+### Component State Management
+- Selected day state propagated through component hierarchy
+- Event state managed in main Calendar component
+- Form state isolated in AddEventForm component
+- Visual feedback for selected days implemented consistently
 
-## Notifications
-- **Notification System**: [React Hot Toast](https://react-hot-toast.com/) or [Notistack](https://iamhosseindhv.com/notistack) for user notifications
-- **Push Notifications**: Web Push API via Supabase Functions or similar
+### Multi-day Event Visualization
+- Special styling for start/middle/end days of multi-day events
+- Proper event display in calendar grid cells
+- Accurate event duration calculation and display
+- Correct filtering of events per day in multi-day scenarios
 
-## Development & Tooling
-- **Package Manager**: npm
-- **Linter**: [ESLint](https://eslint.org/)
-- **Containerization**: [Docker](https://docker.com/) and [Docker Compose](https://docs.docker.com/compose/)
-- **Testing (E2E)**: [Playwright](https://playwright.dev/)
-- **State Management**: React Context API with custom hooks for calendar and task state
+### Editable Events Implementation
+- Single form component handles both creation and editing
+- Clear UI indicators for edit vs create modes
+- Pre-population of form with existing event data
+- Proper update operations that preserve original event creator
 
-## Development Scripts
-- `npm run dev`: Starts the development server with hot reloading.
-- `npm run build`: Builds the application for production.
-- `npm run start`: Starts the production server.
-- `npm run lint`: Lints the codebase.
+### Profile Picture Management
+- Client-side image optimization using canvas (800x800px max, 80% quality)
+- File validation for type (JPEG, PNG, GIF, WEBP) and size (max 5MB)
+- Drag-and-drop upload interface with preview functionality
+- Unique filename generation using user ID and timestamp
+- OAuth integration to support Google profile pictures as defaults
+
+## Security Implementation
+- Row Level Security (RLS) policies restricting users to their own data
+- Storage policies ensuring users can only access their own profile pictures
+- Filename validation to prevent directory traversal attacks
+- MIME type validation on both client and server side
+
+## Critical Implementation Paths
+- AddEventForm.tsx: Enhanced with date/time pickers, all-day toggle, and edit mode
+- Calendar.tsx: Updated state management and database operations
+- DayCell.tsx: Enhanced event display and selection feedback
+- EventDetailView.tsx: Added edit functionality for events
+- CalendarGrid.tsx: Updated to properly handle multi-day events
+- ProfilePictureUpload.tsx: Component for uploading and managing profile pictures
+- ProfilePictureDisplay.tsx: Component for displaying profile pictures with fallbacks
+- profilePictureUtils.ts: Utility functions for handling uploads, deletions, and validations
