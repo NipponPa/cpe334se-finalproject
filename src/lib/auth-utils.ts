@@ -61,7 +61,7 @@ export const getCurrentSession = async () => {
       const handled = await handleAuthError(error);
       if (handled) {
         // Return null to indicate that the session is invalid
-        return { session: null, error: new Error('Session was cleared due to refresh token error') };
+        return { session: null, error: null }; // Return null error after handling
       }
       return { session: null, error };
     }
@@ -72,13 +72,13 @@ export const getCurrentSession = async () => {
     if (error instanceof Error || (typeof error === 'object' && error !== null && 'message' in error)) {
       const handled = await handleAuthError(error as AuthError | Error);
       if (handled) {
-        return { session: null, error: new Error('Session was cleared due to refresh token error') };
+        return { session: null, error: null }; // Return null error after handling
       }
     } else {
       const genericError = new Error('Unknown error occurred');
       const handled = await handleAuthError(genericError);
       if (handled) {
-        return { session: null, error: new Error('Session was cleared due to refresh token error') };
+        return { session: null, error: null }; // Return null error after handling
       }
       return { session: null, error: genericError };
     }

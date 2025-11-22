@@ -28,19 +28,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     // Get initial session
     const getUser = async () => {
-      logAuthEvent('GET_SESSION', 'Attempting to get initial session');
-      const { session, error: sessionError } = await getCurrentSession();
-      
-      if (sessionError) {
-        console.error('Error getting session:', sessionError);
-        logAuthEvent('GET_SESSION_ERROR', { error: sessionError.message || sessionError });
+      try {
+        logAuthEvent('GET_SESSION', 'Attempting to get initial session');
+        const { session, error: sessionError } = await getCurrentSession();
+        
+        if (sessionError) {
+          console.error('Error getting session:', sessionError);
+          logAuthEvent('GET_SESSION_ERROR', { error: sessionError.message || sessionError });
+          setUser(null);
+        } else {
+          logAuthEvent('GET_SESSION_SUCCESS', { hasSession: !!session, userId: session?.user?.id });
+          setUser(session?.user || null);
+        }
+      } catch (error) {
+        console.error('Unexpected error getting session:', error);
+        logAuthEvent('GET_SESSION_ERROR', { error: error instanceof Error ? error.message : String(error) });
         setUser(null);
-      } else {
-        logAuthEvent('GET_SESSION_SUCCESS', { hasSession: !!session, userId: session?.user?.id });
-        setUser(session?.user || null);
+      } finally {
+        setLoading(false);
       }
-      
-      setLoading(false);
 
       // Listen for auth changes
       const { data: { subscription } } = await supabase.auth.onAuthStateChange(
