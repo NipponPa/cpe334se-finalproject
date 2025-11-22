@@ -23,7 +23,8 @@ test.describe('Profile Picture Upload System', () => {
     await page.goto('/');
     
     // Click on user menu (assuming user is logged in)
-    await page.locator('button').filter({ hasText: '@' }).click(); // Find button with email
+    // The NavigationBar shows user.email directly, then has a dropdown with Profile link
+    await page.locator('text=example@example.com').click(); // or whatever email is shown
     
     // Click on profile link
     await page.locator('text=Profile').click();
