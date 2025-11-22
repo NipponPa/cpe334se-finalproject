@@ -1,101 +1,224 @@
-# E2E Tests
+# Testing Strategy for CPE334SE Final Project
 
-This directory contains end-to-end tests for the application using Playwright.
+## Overview
 
-## Test Structure
+This document outlines the comprehensive testing strategy for the web application, covering unit tests, integration tests, and end-to-end (E2E) tests to ensure quality, reliability, and maintainability.
 
-- `e2e/` - Contains all end-to-end test files
-  - `googleauth.spec.ts` - Tests for authenticated user access (uses saved state)
-  - `googleauth-flow.spec.ts` - Tests the full Google authentication flow
-- `utils/` - Utility functions for testing
- - `auth.ts` - Authentication helper functions
-- `auth-states/` - Directory for storing authentication states (do not commit these files)
-- `save-auth-state.ts` - Script to manually authenticate and save Google auth state
+## Test Folder Structure
 
-## Prerequisites
+```
+tests/
+├── unit/                    # Unit tests for individual functions/components
+│   ├── components/          # Component unit tests
+│   ├── utils/               # Utility function tests
+│   └── contexts/            # React context tests
+├── integration/            # Integration tests for API/database interactions
+│   ├── api/                # API endpoint tests
+│   ├── database/           # Database operation tests
+│   └── auth/               # Authentication integration tests
+├── e2e/                    # End-to-end tests for user flows
+│   ├── auth/               # Authentication flows
+│   ├── calendar/           # Calendar functionality
+│   ├── profile/            # Profile management
+│   └── navigation/         # Navigation and routing
+├── fixtures/               # Test data and fixtures
+├── utils/                  # Test utilities and helpers
+├── auth-states/            # Authentication state files (not committed)
+├── types/                  # Test-specific TypeScript types
+└── reports/                # Test reports and coverage data
+```
 
-Before running the tests, ensure you have:
+## Testing Frameworks and Tools
 
-1. Node.js and npm installed
-2. Project dependencies installed: `npm install`
-3. Playwright browsers installed: `npx playwright install`
-4. Your application running: `npm run dev`
+### Current Setup
+- **Playwright**: For E2E testing
+- **Vitest**: For unit testing
+- **React Testing Library**: For component testing
+- **Supabase**: For database testing
 
-## Setting Up Google Authentication State
+### Running Tests
 
-To run the authenticated tests, you need to manually authenticate with Google and save the authentication state:
-
-1. Start your application:
-   ```bash
-   npm run dev
-   ```
-
-2. Run the save-auth-state script:
-   ```bash
-   npx tsx tests/save-auth-state.ts
-   ```
-
-3. The script will open a browser window and navigate to the login page.
-
-4. Manually complete the Google authentication flow.
-
-5. When prompted in the terminal, press Enter after successful authentication.
-
-6. The authentication state will be saved to `tests/auth-states/google-auth.json`.
-
-## Running Tests
-
-### Run All Tests
 ```bash
+# Run all unit tests
+npm run test:unit
+
+# Run all integration tests
+npm run test:integration
+
+# Run all E2E tests
 npx playwright test
-```
 
-### Run a Specific Test File
-```bash
-npx playwright test e2e/googleauth.spec.ts
-npx playwright test e2e/googleauth-flow.spec.ts
-```
-
-### Run Tests in UI Mode (Recommended for Viewing Browser Actions)
-```bash
+# Run E2E tests in UI mode
 npx playwright test --ui
-```
-In UI mode, you can:
-- See the tests running in real-time
-- Step through tests line by line using the "Step Over" button (F10)
-- View detailed trace information
-- Watch the full authentication flow by stepping through `googleauth-flow.spec.ts`
 
-### Run Tests in Debug Mode
-```bash
-npx playwright test --debug
+# Run specific test file
+npx playwright test tests/e2e/auth/login.spec.ts
+
+# Run tests with coverage report
+npm run test:coverage
 ```
 
-### Run Tests with Trace Viewer
-```bash
-npx playwright test --trace on
+## Types of Tests
+
+### 1. Unit Tests
+
+Unit tests focus on testing individual functions, components, and utility functions in isolation.
+
+**Location**: `tests/unit/`
+
+**Coverage includes**:
+- Utility functions in `lib/`
+- Individual React components
+- Context providers and hooks
+- Form validation functions
+
+**Example**:
+```typescript
+// tests/unit/utils/auth-utils.test.ts
+import { validateEmail } from '@/lib/auth-utils';
+
+describe('Auth Utilities', () => {
+  test('should validate correct email format', () => {
+    expect(validateEmail('test@example.com')).toBe(true);
+  });
+  
+  test('should reject invalid email format', () => {
+    expect(validateEmail('invalid-email')).toBe(false);
+  });
+});
 ```
-After running, view the trace with:
-```bash
-npx playwright show-trace
+
+### 2. Integration Tests
+
+Integration tests verify the interaction between different modules, API calls, and database operations.
+
+**Location**: `tests/integration/`
+
+**Coverage includes**:
+- Supabase authentication integration
+- Database CRUD operations
+- File upload functionality
+- API endpoint interactions
+
+**Example**:
+```typescript
+// tests/integration/database/events.test.ts
+import { createEvent } from '@/lib/calendar-service';
+
+describe('Calendar Service Integration', () => {
+  test('should create event in database', async () => {
+    const event = {
+      title: 'Test Event',
+      start: new Date(),
+      end: new Date(Date.now() + 3600000),
+      userId: 'test-user-id'
+    };
+    
+    const result = await createEvent(event);
+    
+    expect(result.success).toBe(true);
+    expect(result.data.title).toBe('Test Event');
+  });
+});
 ```
 
-## Viewing Test Results
+### 3. End-to-End (E2E) Tests
 
-After running tests, you can view a detailed HTML report:
-```bash
-npx playwright show-report
+E2E tests simulate real user scenarios and verify the complete application flow.
+
+**Location**: `tests/e2e/`
+
+**Coverage includes**:
+- Authentication flows (login, signup, password reset)
+- Calendar functionality (create, edit, delete events)
+- Profile management (picture upload, information update)
+- Navigation and routing
+
+**Example**:
+```typescript
+// tests/e2e/auth/login.spec.ts
+import { test, expect } from '@playwright/test';
+
+test.describe('Authentication E2E Tests', () => {
+  test('User login with email and password', async ({ page }) => {
+    await page.goto('/login');
+    await page.locator('#email').fill('test@example.com');
+    await page.locator('#password').fill('password123');
+    await page.getByRole('button', { name: 'Log in' }).click();
+    
+    await expect(page).toHaveURL('/');
+  });
+});
 ```
 
-This report includes:
-- Test execution results
-- Screenshots at each step
-- Video recordings of the tests
-- Trace information for debugging
+## Test Coverage Areas
 
-## Important Notes
+### Authentication System
+- User registration with email/password
+- User login with email/password
+- Google OAuth integration
+- Password reset functionality
+- Session management
+- Protected route access control
+- User logout functionality
 
-- The `tests/auth-states/` directory is in `.gitignore` and should not be committed to the repository as it contains sensitive authentication information.
-- The `googleauth.spec.ts` test uses the saved authentication state and verifies that an authenticated user can access protected pages.
-- The `googleauth-flow.spec.ts` test performs the full Google authentication flow and is useful for viewing the actual login process.
-- To see the browser actions during the `googleauth-flow.spec.ts` test in UI mode, use the "Step Over" button (F10) to execute the test line by line.
+### Calendar System
+- Event creation with validation
+- Event editing functionality
+- Event deletion with confirmation
+- Multi-day event support
+- All-day event handling
+- Event time display formatting
+- Calendar navigation (month/week/day views)
+- Event conflict detection
+- Friend event sharing
+
+### Profile Management
+- Profile picture upload
+- Profile picture validation (format, size)
+- Profile picture display
+- Default avatar handling
+- Profile information editing
+
+### UI/UX Components
+- Responsive design across devices
+- Form validation and error handling
+- Loading states
+- Error boundary handling
+- Accessibility compliance
+
+### Database Operations
+- Event CRUD operations
+- User profile management
+- Profile picture storage and retrieval
+- Friend relationship management
+- Data consistency across operations
+
+## Testing Best Practices
+
+### Naming Conventions
+- Use descriptive test names that explain the expected behavior
+- Follow the pattern: `should [expected behavior] when [conditions]`
+
+### Test Structure
+- Use AAA pattern (Arrange, Act, Assert)
+- Keep tests small and focused
+- Use meaningful variable names
+- Group related tests with `describe` blocks
+
+### Mocking and Stubbing
+- Mock external dependencies (APIs, databases)
+- Use fake data for consistent test results
+- Isolate components for unit testing
+
+### Continuous Integration
+- All tests must pass before merging
+- Code coverage thresholds (aim for 80%+ coverage)
+- Automated test execution on pull requests
+
+## Quality Gates
+
+- All tests must pass before deployment
+- Code coverage should not decrease
+- No critical or high severity bugs in test code
+- Performance tests should meet defined thresholds
