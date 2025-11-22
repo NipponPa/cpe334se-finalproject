@@ -50,6 +50,7 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ isOpen, onClose, onSave, se
   
   // Track if component is mounted to prevent state updates on unmounted components
  const isMountedRef = React.useRef(true);
+ const fetchAbortController = React.useRef<AbortController | null>(null);
 
   // Initialize form when editing an event
   useEffect(() => {
@@ -130,7 +131,7 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ isOpen, onClose, onSave, se
   }, [editingEvent, selectedDay]);
 
   // Helper function to format time as HH:MM
- const formatTime = (date: Date): string => {
+  const formatTime = (date: Date): string => {
     const hours = date.getHours().toString().padStart(2, '0');
     const minutes = date.getMinutes().toString().padStart(2, '0');
     return `${hours}:${minutes}`;
@@ -138,121 +139,89 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ isOpen, onClose, onSave, se
 
   // Check if the session is still valid before fetching friends
   const checkSessionValidity = async () => {
+    console.log('[AddEventForm checkSessionValidity] Checking session...');
     const { data: { session }, error } = await supabase.auth.getSession();
-    
-    if (error || !session) {
-      console.error('Session invalid or error:', error);
+    if (error) {
+      console.error('[AddEventForm checkSessionValidity] Error getting session:', error);
       return false;
     }
-    
-    // Check if session is expired
-    const currentTime = Math.floor(Date.now() / 1000);
-    if (session.expires_at && session.expires_at < currentTime) {
-      console.log('Session expired, attempting refresh...');
-      const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
-      
-      if (refreshError) {
-        console.error('Failed to refresh session:', refreshError);
-        return false;
-      }
-      
-      // Update user context if refresh was successful
-      if (refreshData.session?.user) {
-        // We can't directly update the context here, but the AuthContext should handle this
-        return true;
-      }
-      return false;
-    }
-    
-    return true;
+    console.log('[AddEventForm checkSessionValidity] Session valid:', !!session);
+    return !!session;
   };
 
   // Fetch friends/users from Supabase with retry logic and timeout
-  useEffect(() => {
-    if (isOpen && user) {
-      setError(null); // Reset error state when opening the form
-      setLoading(true); // Ensure loading state is set when opening
-      fetchFriends();
-    } else if (!isOpen) {
-      // When form is closed, ensure loading state is reset
-      setLoading(false);
-    }
-  }, [isOpen, user]);
-
-  // Track the fetch request to prevent multiple simultaneous requests
-  const fetchAbortController = React.useRef<AbortController | null>(null);
-
-  // Update the mounted ref when component mounts/unmounts
-  useEffect(() => {
+ useEffect(() => {
     isMountedRef.current = true;
-    return () => {
-      isMountedRef.current = false;
-    };
-  }, []);
 
-  // Add event listener for visibility change to handle tab switching
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (!document.hidden && isOpen && user && !loading && !error) {
-        // Check session validity when user returns to the tab
-        // If session is valid, refetch friends to ensure they're current
-        checkSessionValidity().then(isValid => {
-          if (isValid) {
-            fetchFriends();
-          }
-        });
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [isOpen, user, loading, error]);
-
-  const fetchFriends = async (retryCount = 0) => {
-    // Check if component is still mounted before proceeding
-    if (!isMountedRef.current) return;
-    
-    // Cancel any existing fetch request to prevent multiple simultaneous requests
-    if (fetchAbortController.current) {
-      fetchAbortController.current.abort();
-    }
-    
-    // Create a new abort controller for this request
-    fetchAbortController.current = new AbortController();
-    
-    try {
-      // Check session validity before fetching
-      const isValid = await checkSessionValidity();
-      if (!isValid) {
-        console.error('Session is not valid, cannot fetch friends');
-        if (isMountedRef.current) {
-          setFriends([]);
-          setError('Authentication session expired. Please refresh the page or sign in again.');
-          setLoading(false);
-        }
-        // Clean up the abort controller
-        fetchAbortController.current = null;
+    const initiateFetch = async () => {
+      console.log('[AddEventForm] initiateFetch called. isOpen:', isOpen, 'user:', user);
+      if (!isOpen || !user) {
+        setLoading(false);
+        // If the form is not open or user is null, explicitly clear friends
+        setFriends([]);
         return;
       }
 
-      // Only set loading to true if not already loading
-      // This prevents race conditions when multiple fetches are triggered
-      if (!loading && isMountedRef.current) {
-        setLoading(true);
+      // Clear any existing abort controller
+      if (fetchAbortController.current) {
+        console.log('[AddEventForm] Aborting previous fetch due to new initiation.');
+        fetchAbortController.current.abort();
       }
-      
-      // Set a timeout for the fetch operation
-      const timeoutId = setTimeout(() => fetchAbortController.current?.abort(), 10000); // 10 second timeout
-      
-      // Fetch all users except the current user
+      fetchAbortController.current = new AbortController();
+
+      console.log('[AddEventForm] Checking session validity before fetch...');
+      const isValid = await checkSessionValidity();
+      if (!isValid) {
+        console.log('[AddEventForm] Session invalid on initial check, not fetching friends.');
+        if (isMountedRef.current) {
+          setError('Authentication session expired. Please refresh the page or sign in again.');
+          setLoading(false);
+          setFriends([]); // Clear friends if session is invalid
+        }
+        return;
+      }
+      fetchFriends();
+    };
+
+    initiateFetch();
+
+    return () => {
+      isMountedRef.current = false;
+      if (fetchAbortController.current) {
+        console.log('[AddEventForm] Component unmounting, aborting current fetch.');
+        fetchAbortController.current.abort();
+      }
+    };
+  }, [isOpen, user?.id]);
+
+  const fetchFriends = async (retryCount = 0) => {
+    console.log(`[AddEventForm fetchFriends] Attempting to fetch friends (retry: ${retryCount})...`);
+    if (!isMountedRef.current) {
+      console.log('[AddEventForm fetchFriends] Component unmounted during fetch, aborting.');
+      return;
+    }
+    const abortController = fetchAbortController.current;
+    if (abortController?.signal.aborted) {
+      console.log('[AddEventForm fetchFriends] Fetch aborted before execution, aborting.');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const timeoutId = setTimeout(() => {
+        if (abortController) {
+          console.log('[AddEventForm fetchFriends] Fetch operation timed out, aborting.');
+          abortController.abort();
+        }
+      }, 10000); // 10 second timeout
+
       const { data, error, status } = await supabase
         .from('users')
         .select('id, full_name, email, avatar_url')
         .neq('id', user?.id || '')
-        .abortSignal(fetchAbortController.current.signal);
+        .abortSignal(abortController!.signal);
 
       clearTimeout(timeoutId);
       
@@ -287,10 +256,9 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ isOpen, onClose, onSave, se
       if (error instanceof Error) {
         // Handle timeout specifically
         if (error.name === 'AbortError') {
-          console.error('Fetch friends operation timed out');
           if (isMountedRef.current) {
-            setFriends([]);
-            setError('Loading friends timed out. Please check your connection and try again.');
+             console.error('Fetch friends operation timed out');
+             setError('Loading friends timed out. Please check your connection and try again.');
           }
         } else {
           // Check if the error has a status property (for Supabase errors)
@@ -454,11 +422,17 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ isOpen, onClose, onSave, se
           }
         });
         
+        console.log('Sending invitation request body:', {
+          eventDetails,
+          invitees: invitees.map(email => ({ email }))
+        });
+
         if (response.error) {
+          console.error('Supabase Function Invoke Error:', response.error);
           throw new Error(`Failed to send invitations: ${response.error.message}`);
         }
         
-        console.log('Invitations sent successfully:', response.data);
+        console.log('Invitations sent successfully. Supabase Function Response:', response.data);
       }
       
       // Create invitations array for the event
