@@ -5,6 +5,7 @@ The calendar application is a React/Next.js application that allows users to cre
 
 ## Core Features
 - User authentication and authorization
+- Username handling during signup that connects the input to both the display name in Supabase authentication and the full name in the user table
 - Month view calendar with day selection
 - Event creation with title, description, start/end times
 - Visual indicators for events on calendar days

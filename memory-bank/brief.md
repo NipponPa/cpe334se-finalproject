@@ -16,6 +16,7 @@ This web application is designed to help students and users manage events, tasks
 - Multiple calendar views (day, week, month)
 - Timely notifications to stay organized
 - User authentication and secure data management
+- Username handling during signup that connects to both display name in authentication and full name in user table
 
 ## Target Audience
 - **Who are the primary users of this application?**

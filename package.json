@@ -45,7 +45,7 @@
     "eslint-config-next": "15.5.4",
     "jsdom": "^27.2.0",
     "typescript": "^5",
-    "vitest": "^4.0.13"
+    "vitest": "^4.0.13",
     "supabase": "^2.58.5",
     "typescript": "^5"
   }

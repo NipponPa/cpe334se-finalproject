@@ -9,7 +9,7 @@ import { handleAuthError, getCurrentSession, logAuthEvent } from '@/lib/auth-uti
 type AuthContextType = {
   user: User | null
   // Using any for Supabase auth responses as they are complex types
- signUp: (email: string, password: string) => Promise<any> // eslint-disable-line @typescript-eslint/no-explicit-any
+ signUp: (email: string, password: string, userMetadata?: Record<string, unknown>) => Promise<any> // eslint-disable-line @typescript-eslint/no-explicit-any
   signIn: (email: string, password: string) => Promise<any> // eslint-disable-line @typescript-eslint/no-explicit-any
   signInWithOAuth: (provider: 'google' | 'github' | 'facebook') => Promise<void>
   signOut: () => Promise<void>
@@ -87,10 +87,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     getUser();
   }, [])
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string, userMetadata?: Record<string, unknown>) => {
     logAuthEvent('SIGN_UP_START', { email });
     try {
-      const response = await supabase.auth.signUp({ email, password })
+      const response = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: userMetadata || {}
+        }
+      })
       logAuthEvent('SIGN_UP_SUCCESS', { hasSession: !!response.data?.session?.user?.id, userId: response.data?.user?.id });
       return response
     } catch (error) {
@@ -98,7 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       logAuthEvent('SIGN_UP_ERROR', { error: error instanceof Error ? error.message : String(error) });
       return { error: { message: 'Sign up failed', name: 'SignUpError' } }
     }
- }
+  }
 
  const signIn = async (email: string, password: string) => {
     logAuthEvent('SIGN_IN_START', { email });

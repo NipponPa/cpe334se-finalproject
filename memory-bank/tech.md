@@ -76,3 +76,6 @@
 - send-invitations Supabase Edge Function: Updated to create internal notifications instead of sending emails
 - Calendar.tsx: Updated to handle new event creation flow from AddEventForm
 - 04_notifications_rls_policy.sql: Migration file to fix RLS policy for notifications table
+- signup/page.tsx: Captures username during signup and stores it in both Supabase authentication metadata and user table
+- AuthContext.tsx: Updated signUp function to accept userMetadata parameter for storing username during signup
+- signup-username-storage.test.ts: Unit tests verifying that username is properly stored in both authentication and user table during signup

@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { supabase } from '@/lib/supabase';
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('');
@@ -27,11 +28,28 @@ export default function SignUpPage() {
     }
 
     try {
-      const result = await signUp(email, password);
+      // Set user metadata with the display name during signup
+      const userMetadata = username ? { full_name: username } : {};
+      const result = await signUp(email, password, userMetadata);
 
       if (result.error) {
         setError(result.error.message);
       } else {
+        // The display name is set in user metadata during signup,
+        // and the trigger in the database will automatically update the users table.
+        // We update the users table again here to ensure consistency.
+        if (result.data?.user && username) {
+          const { error: profileError } = await supabase
+            .from('users')
+            .update({ full_name: username })
+            .eq('id', result.data.user.id);
+          
+          if (profileError) {
+            console.error('Error updating user profile:', profileError);
+            // We don't want to fail the signup just because profile update failed
+            // The user can update their profile later
+          }
+        }
         router.push('/'); // Redirect to home after successful sign-up
       }
     } catch (err) {

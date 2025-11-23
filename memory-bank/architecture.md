@@ -65,6 +65,13 @@ The application now includes a comprehensive internal notification system for ev
 - `EventDetailView.tsx`: Modal showing events for a selected day with edit capabilities
 - `FriendSelection.tsx`: Component for selecting friends to invite to events
 - `NotificationDropdown.tsx`: Component for displaying and responding to notifications (added in notification system update)
+- `SignUpPage.tsx`: Component for user registration that handles username input and connects it to both display name in authentication and full name in user table
+
+## Authentication Flow
+- `AuthContext.tsx`: Centralized authentication context that handles sign up, sign in, and sign out operations
+- `signup/page.tsx`: Implements signup flow that captures username and stores it in both Supabase authentication metadata and user table
+- During signup, username is stored as `full_name` in user metadata for display purposes in authentication system
+- After successful authentication signup, the application also updates the `users` table with the full name to ensure consistency
 
 ## Key Technical Decisions
 - Date handling: Implemented proper timezone conversion to prevent date shifting
