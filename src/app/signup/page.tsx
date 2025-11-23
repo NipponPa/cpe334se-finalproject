@@ -11,7 +11,7 @@ import { supabase } from '@/lib/supabase';
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+ const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
@@ -54,15 +54,6 @@ export default function SignUpPage() {
       }
     } catch (err) {
       setError('An error occurred during sign-up');
-      console.error(err);
-    }
-  };
-
-  const handleOAuthSignIn = async (provider: 'google' | 'github' | 'facebook') => {
-    try {
-      await signInWithOAuth(provider);
-    } catch (err) {
-      setError('An error occurred during OAuth authentication');
       console.error(err);
     }
   };
