@@ -51,6 +51,16 @@
 - Filename validation to prevent directory traversal attacks
 - MIME type validation on both client and server side
 
+### Notification System Implementation
+- Internal notification system replaces previous email invitation functionality
+- Event invitations now create notifications in the database instead of sending emails
+- NotificationDropdown component provides UI for accepting/declining invitations
+- Real-time notification count display in NavigationBar
+- Only registered users can be invited (external email functionality removed)
+- Supabase Edge Function updated to create internal notifications for registered users only
+- TypeScript interfaces ensure proper typing throughout the notification system
+- Proper error handling and user feedback for notification operations
+
 ## Critical Implementation Paths
 - AddEventForm.tsx: Enhanced with date/time pickers, all-day toggle, and edit mode
 - Calendar.tsx: Updated state management and database operations
@@ -60,3 +70,9 @@
 - ProfilePictureUpload.tsx: Component for uploading and managing profile pictures
 - ProfilePictureDisplay.tsx: Component for displaying profile pictures with fallbacks
 - profilePictureUtils.ts: Utility functions for handling uploads, deletions, and validations
+- notification-utils.ts: Utility functions for creating, retrieving, and managing notifications
+- NotificationDropdown.tsx: Component for displaying and responding to notifications with accept/decline functionality
+- FriendSelection.tsx: Updated to only allow selection of registered users (internal) for invitations
+- send-invitations Supabase Edge Function: Updated to create internal notifications instead of sending emails
+- Calendar.tsx: Updated to handle new event creation flow from AddEventForm
+- 04_notifications_rls_policy.sql: Migration file to fix RLS policy for notifications table

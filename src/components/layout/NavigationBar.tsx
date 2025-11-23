@@ -4,6 +4,7 @@ import { Bell, ChevronLeft, ChevronRight, Menu, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import ProfilePictureDisplay from '@/components/profile/ProfilePictureDisplay';
+import NotificationDropdown from '@/components/NotificationDropdown';
 
 interface NavigationBarProps {
   currentDate: Date;
@@ -25,6 +26,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
   const { user, signOut } = useAuth();
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setUserMenuOpen] = useState(false);
+  const [isNotificationDropdownOpen, setIsNotificationDropdownOpen] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   const monthYear = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
@@ -82,7 +84,10 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
 
         {/* Notifications */}
         <div className="relative">
-          <button onClick={onNotificationClick} className="relative p-2 hover:bg-[#FFD966] hover:text-black rounded-full transition-colors">
+          <button
+            onClick={() => setIsNotificationDropdownOpen(!isNotificationDropdownOpen)}
+            className="relative p-2 hover:bg-[#FFD966] hover:text-black rounded-full transition-colors"
+          >
             <Bell size={20} />
             {notificationCount > 0 && (
               <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full">
@@ -90,6 +95,12 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
               </span>
             )}
           </button>
+          {isNotificationDropdownOpen && (
+            <NotificationDropdown
+              isOpen={isNotificationDropdownOpen}
+              onClose={() => setIsNotificationDropdownOpen(false)}
+            />
+          )}
         </div>
 
         {/* User Info Dropdown */}
@@ -165,16 +176,29 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
           <button onClick={onGoToToday} className="w-full bg-[#FFD966] text-black px-4 py-2 rounded-md hover:bg-yellow-400 transition-colors mb-4">
             Today
           </button>
+{/* Notifications */}
+<button
+  onClick={() => setIsNotificationDropdownOpen(!isNotificationDropdownOpen)}
+  className="flex items-center justify-between w-full p-2 mb-2 hover:bg-[#4a4747] rounded"
+>
+  <span>Notifications</span>
+  {notificationCount > 0 && (
+     <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-60 rounded-full">
+      {notificationCount}
+     </span>
+  )}
+</button>
 
-          {/* Notifications */}
-          <button onClick={onNotificationClick} className="flex items-center justify-between w-full p-2 mb-2 hover:bg-[#4a4747] rounded">
-            <span>Notifications</span>
-            {notificationCount > 0 && (
-               <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full">
-                {notificationCount}
-               </span>
-            )}
-          </button>
+{/* Notification Dropdown for Mobile */}
+{isNotificationDropdownOpen && (
+  <div className="absolute top-16 right-0 w-full bg-[#373434] p-4 z-20">
+    <NotificationDropdown
+      isOpen={isNotificationDropdownOpen}
+      onClose={() => setIsNotificationDropdownOpen(false)}
+    />
+  </div>
+)}
+
           
           {/* User Info */}
           {user && (

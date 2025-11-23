@@ -11,7 +11,7 @@ This web application is designed to help students and users manage events, tasks
 - **What are the most important features to build?**
 - Centralized calendar for creating and tracking events
 - Task management system with reminders and notifications
-- Collaboration features with invitations and participant lists
+- Collaboration features with internal notifications for invitations and participant lists
 - Personal profile management
 - Multiple calendar views (day, week, month)
 - Timely notifications to stay organized

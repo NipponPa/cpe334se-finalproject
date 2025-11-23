@@ -129,7 +129,7 @@ const Calendar: React.FC<CalendarProps> = ({
 
   const handleAddEventSubmit = async (newEvent: Omit<Event, 'id'>) => {
     try {
-      console.log('Saving event:', newEvent, 'for user:', user?.id);
+      console.log('Handling event submission:', newEvent, 'for user:', user?.id);
       console.log('Editing event state:', editingEvent);
       
       if (editingEvent) {
@@ -173,47 +173,68 @@ const Calendar: React.FC<CalendarProps> = ({
           );
         }
       } else {
-        // Create new event
-        console.log('Creating new event');
-        const { data, error } = await supabase
-          .from('events')
-          .insert([{
-            title: newEvent.title,
-            start_time: newEvent.startTime.toISOString(),
-            end_time: newEvent.endTime.toISOString(),
-            description: newEvent.description,
-            is_all_day: newEvent.isAllDay,
-            created_by: user?.id // Associate event with current user
-          }])
-          .select();
-
-        if (error) {
-          console.error('Error saving event:', error);
-          alert('Failed to save event to database: ' + error.message);
-          return;
-        }
-
-        if (data && data.length > 0) {
-          console.log('Event saved successfully:', data[0]);
+        // For new events, the event is already created in AddEventForm, so we just need to refresh the list
+        // Fetch all events again to update the local state
+        console.log('Event already created in AddEventForm, refreshing event list');
+        
+        let eventsData;
+        
+        // If user exists, filter by created_by
+        if (user?.id) {
+          console.log('Filtering events by user:', user.id);
+          const { data, error } = await supabase
+            .from('events')
+            .select('*')
+            .eq('created_by', user.id);
           
-          // Add the new event to the local state with proper ID from database
-          const newEventWithId: Event = {
-            id: data[0].id,
-            title: data[0].title,
-            startTime: new Date(data[0].start_time),
-            endTime: new Date(data[0].end_time),
-            description: data[0].description || '',
-            isAllDay: newEvent.isAllDay
-          };
-          setEvents(prevEvents => [...prevEvents, newEventWithId]);
+          if (error) {
+            console.error('Error fetching user events:', error);
+            alert('Failed to refresh events: ' + error.message);
+            return;
+          }
+          
+          eventsData = data;
+        } else {
+          console.log('No user authenticated, fetching all events');
+          const { data, error } = await supabase
+            .from('events')
+            .select('*');
+          
+          if (error) {
+            console.error('Error fetching events after creation:', error);
+            alert('Failed to refresh events: ' + error.message);
+            return;
+          }
+          
+          eventsData = data;
+        }
+        
+        if (eventsData) {
+          // Convert date strings to Date objects
+          const formattedEvents = eventsData.map((event: SupabaseEvent) => {
+            const startTime = new Date(event.start_time);
+            const endTime = new Date(event.end_time);
+            
+            return {
+              id: event.id,
+              title: event.title,
+              startTime: startTime,
+              endTime: endTime,
+              description: event.description || '',
+              isAllDay: event.is_all_day
+            };
+          });
+          
+          setEvents(formattedEvents);
+          console.log('Events refreshed successfully');
         }
       }
       
       // Success message
-      console.log('Event saved successfully to database');
+      console.log('Event submission handled successfully');
     } catch (error) {
-      console.error('Unexpected error saving event:', error);
-      alert('An unexpected error occurred while saving the event');
+      console.error('Unexpected error handling event submission:', error);
+      alert('An unexpected error occurred while handling the event submission');
     } finally {
       setIsAddEventFormOpen(false);
       setEditingEvent(null); // Clear editing event after saving

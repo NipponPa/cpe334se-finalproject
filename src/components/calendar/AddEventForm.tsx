@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import FriendSelection from './FriendSelection';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
+import { createEventInvitationNotification } from '@/lib/notification-utils';
 
 interface Friend {
   id: string;
   name: string;
- email: string;
- avatar?: string;
+  email: string;
+  avatar?: string;
+  type: 'internal';
 }
 
 interface Invitation {
@@ -20,8 +22,8 @@ interface Event {
   title: string;
  startTime: Date;
  endTime: Date;
- description: string;
- invitees?: string[];
+  description: string;
+  invitees?: (string | {email: string, type: 'internal'})[];
   invitations?: Invitation[];
   isAllDay?: boolean;
 }
@@ -39,7 +41,7 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ isOpen, onClose, onSave, se
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
   const [description, setDescription] = useState('');
-  const [invitees, setInvitees] = useState<string[]>([]);
+  const [invitees, setInvitees] = useState<{email: string, type: 'internal'}[]>([]);
   const [friends, setFriends] = useState<Friend[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -96,7 +98,22 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ isOpen, onClose, onSave, se
       }
       
       // Set invitees if they exist
-      setInvitees(editingEvent.invitees || []);
+      // Convert string array to the new format if needed
+      if (editingEvent.invitees) {
+        // Convert all invitees to the new format
+        const convertedInvitees = editingEvent.invitees.map(invitee => {
+          if (typeof invitee === 'string') {
+            // It's a string, convert to object
+            return { email: invitee, type: 'internal' as const };
+          } else {
+            // It's already an object
+            return { email: invitee.email, type: 'internal' as const };
+          }
+        });
+        setInvitees(convertedInvitees);
+      } else {
+        setInvitees([]);
+      }
     } else {
       // For new events, only initialize dates if selectedDay is provided
       // Otherwise, keep fields empty until user starts typing
@@ -138,16 +155,34 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ isOpen, onClose, onSave, se
   };
 
   // Check if the session is still valid before fetching friends
-  const checkSessionValidity = async () => {
-    console.log('[AddEventForm checkSessionValidity] Checking session...');
-    const { data: { session }, error } = await supabase.auth.getSession();
-    if (error) {
-      console.error('[AddEventForm checkSessionValidity] Error getting session:', error);
-      return false;
-    }
-    console.log('[AddEventForm checkSessionValidity] Session valid:', !!session);
-    return !!session;
-  };
+    const checkSessionValidity = async () => {
+      console.log('[AddEventForm checkSessionValidity] Checking session...');
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error('[AddEventForm checkSessionValidity] Error getting session:', error);
+        return false;
+      }
+      console.log('[AddEventForm checkSessionValidity] Session valid:', !!session);
+      return !!session;
+    };
+  
+    // Fetch the current user's name for notifications
+    const getCurrentUserName = async (): Promise<string> => {
+      if (!user) return 'A user';
+      
+      const { data, error } = await supabase
+        .from('users')
+        .select('full_name')
+        .eq('id', user.id)
+        .single();
+      
+      if (error) {
+        console.error('Error fetching current user name:', error);
+        return 'A user';
+      }
+      
+      return data.full_name || 'A user';
+    };
 
   // Fetch friends/users from Supabase with retry logic and timeout
  useEffect(() => {
@@ -243,7 +278,8 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ isOpen, onClose, onSave, se
           id: user.id,
           name: user.full_name || user.email.split('@')[0],
           email: user.email,
-          avatar: user.avatar_url
+          avatar: user.avatar_url,
+          type: 'internal' as const
         }));
         if (isMountedRef.current) {
           setFriends(formattedFriends);
@@ -405,62 +441,142 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ isOpen, onClose, onSave, se
     console.log('Selected invitees:', invitees);
     
     try {
-      // Prepare event details for the Edge Function
-      const eventDetails = {
-        title: title.trim(),
-        start_time: startDateTime.toISOString(),
-        end_time: endDateTime.toISOString(),
-        description: description.trim(),
-      };
-      
-      // Call the Supabase Edge Function if there are invitees
-      if (invitees && invitees.length > 0) {
-        const response = await supabase.functions.invoke('send-invitations', {
-          body: {
-            eventDetails,
-            invitees: invitees.map(email => ({ email }))
-          }
-        });
-        
-        console.log('Sending invitation request body:', {
-          eventDetails,
-          invitees: invitees.map(email => ({ email }))
-        });
-
-        if (response.error) {
-          console.error('Supabase Function Invoke Error:', response.error);
-          throw new Error(`Failed to send invitations: ${response.error.message}`);
-        }
-        
-        console.log('Invitations sent successfully. Supabase Function Response:', response.data);
+      if (!user) {
+        throw new Error('User not authenticated');
       }
       
-      // Create invitations array for the event
-      const invitations = invitees.map(email => ({
-        recipientEmail: email,
-        status: 'pending' as const
-      }));
-      
-      // Call the onSave function with the new event data
-      console.log('Calling onSave with event data:', {
-        title: title.trim(),
-        startTime: startDateTime,
-        endTime: endDateTime,
-        description: description.trim(),
-        invitees: invitees,
-        invitations: invitations,
-        isAllDay
-      });
-      
-      onSave({
-        title: title.trim(),
-        startTime: startDateTime,
-        endTime: endDateTime,
-        description: description.trim(),
-        invitees: invitees,
-        invitations: invitations,
-        isAllDay
-      });
+      // Check if we're editing an existing event
+      if (editingEvent) {
+        // Update existing event
+        console.log('Updating existing event with ID:', editingEvent.id);
+        
+        const { data: eventData, error: eventError } = await supabase
+          .from('events')
+          .update({
+            title: title.trim(),
+            start_time: startDateTime.toISOString(),
+            end_time: endDateTime.toISOString(),
+            description: description.trim(),
+            is_all_day: isAllDay
+          })
+          .eq('id', editingEvent.id)
+          .select()
+          .single();
+        
+        if (eventError) {
+          console.error('Error updating event:', eventError);
+          throw new Error(`Failed to update event: ${eventError.message}`);
+        }
+        
+        console.log('Event updated successfully with ID:', eventData.id);
+        
+        // For edited events, we'll just call onSave to refresh the UI
+        // Create invitations array for the event
+        const invitations = invitees.map(invitee => ({
+          recipientEmail: invitee.email,
+          status: 'pending' as const
+        }));
+        
+        // Call the onSave function with the updated event data
+        onSave({
+          title: title.trim(),
+          startTime: startDateTime,
+          endTime: endDateTime,
+          description: description.trim(),
+          invitees: invitees,
+          invitations: invitations,
+          isAllDay
+        });
+      } else {
+        // Create new event - first create the event in the database directly
+        console.log('Creating new event in database...');
+        
+        // Create the event in the database
+        const { data: eventData, error: eventError } = await supabase
+          .from('events')
+          .insert([{
+            title: title.trim(),
+            start_time: startDateTime.toISOString(),
+            end_time: endDateTime.toISOString(),
+            description: description.trim(),
+            is_all_day: isAllDay,
+            created_by: user.id
+          }])
+          .select()
+          .single();
+        
+        if (eventError) {
+          console.error('Error creating event:', eventError);
+          throw new Error(`Failed to create event: ${eventError.message}`);
+        }
+        
+        console.log('Event created successfully with ID:', eventData.id);
+        
+        // Process internal invitations using notifications (only after the event is created)
+        if (invitees && invitees.length > 0) {
+          // Get current user's name for notifications
+          const currentUserName = await getCurrentUserName();
+          
+          // Create internal notifications for internal users
+          for (const invitee of invitees) {
+            // Find the user ID for the invitee
+            const { data: userData, error: userError } = await supabase
+              .from('users')
+              .select('id')
+              .eq('email', invitee.email)
+              .single();
+            
+            if (userError) {
+              console.error(`Error finding user ID for ${invitee.email}:`, userError);
+              continue;
+            }
+            
+            if (userData) {
+              // Create an internal notification for the event invitation using the actual event ID
+              const notificationResult = await createEventInvitationNotification(
+                userData.id,
+                eventData.id,
+                title.trim(),
+                currentUserName
+              );
+              
+              if (notificationResult.error) {
+                console.error(`Error creating notification for ${invitee.email}:`, notificationResult.error);
+              } else {
+                console.log(`Notification created for internal user: ${invitee.email}`);
+              }
+            }
+          }
+        }
+        
+        // Create invitations array for the event
+        const invitations = invitees.map(invitee => ({
+          recipientEmail: invitee.email,
+          status: 'pending' as const
+        }));
+        
+        // Call the onSave function with the new event data (including the actual ID)
+        console.log('Calling onSave with event data:', {
+          title: title.trim(),
+          startTime: startDateTime,
+          endTime: endDateTime,
+          description: description.trim(),
+          invitees: invitees,
+          invitations: invitations,
+          isAllDay
+        });
+        
+        // Pass the created event to the parent component
+        onSave({
+          title: title.trim(),
+          startTime: startDateTime,
+          endTime: endDateTime,
+          description: description.trim(),
+          invitees: invitees,
+          invitations: invitations,
+          isAllDay
+        });
+      }
       
       // Close the form after successful save
       onClose();
@@ -475,11 +591,11 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ isOpen, onClose, onSave, se
       setEndDate('');
       setIsAllDay(false);
     } catch (error: unknown) {
-      console.error('Error sending invitations:', error);
+      console.error('Error handling event submission:', error);
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-      alert(`Error sending invitations: ${errorMessage}`);
+      alert(`Error handling event submission: ${errorMessage}`);
     }
-  };
+ };
 
   const handleCancel = () => {
     onClose();

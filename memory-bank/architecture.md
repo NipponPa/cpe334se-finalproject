@@ -31,6 +31,31 @@ The application includes a comprehensive profile picture management system with 
 - Client-side image optimization before upload (resized to 800x800px with 80% quality)
 - OAuth integration to support Google profile pictures as defaults
 
+## Notification System Architecture
+The application now includes a comprehensive internal notification system for event invitations with the following components:
+
+### Notification Utility Layer
+- `notification-utils.ts`: Contains functions for creating, retrieving, and managing notifications
+- Functions include `createNotification`, `createEventInvitationNotification`, `getNotificationsForUser`, `markNotificationAsRead`, etc.
+- Uses TypeScript interfaces for proper typing of notification data
+
+### Database Integration
+- Enhanced `notifications` table with columns for user_id, title, message, type, related_entity_type, related_entity_id, and is_read status
+- Row Level Security (RLS) policies ensure users can only access their own notifications
+- Notification types include 'event_reminder', 'task_deadline', 'invitation', 'collaboration', 'general'
+
+### Frontend Components
+- `NotificationDropdown.tsx`: Component for displaying notifications with accept/decline buttons for event invitations
+- Integration with `NavigationBar.tsx` to show notification count and toggle dropdown
+- Updated `FriendSelection.tsx`: Component now only allows selection of registered users (internal)
+- Updated `AddEventForm.tsx`: Creates internal notifications instead of sending email invitations
+
+### Backend Services
+- Updated `send-invitations` Supabase Edge Function to create internal notifications instead of sending emails
+- Function only processes invitations for registered users in the system
+- Maintains same API interface for compatibility with existing code
+- Fixed event creation flow: events are now created in database first, then notifications are created with actual event ID
+
 ## Component Structure
 - `Calendar.tsx`: Main calendar component that manages state and coordinates other components
 - `CalendarHeader.tsx`: Displays month/year and contains the "Add Event" button
@@ -39,6 +64,7 @@ The application includes a comprehensive profile picture management system with 
 - `AddEventForm.tsx`: Modal form for creating and editing events
 - `EventDetailView.tsx`: Modal showing events for a selected day with edit capabilities
 - `FriendSelection.tsx`: Component for selecting friends to invite to events
+- `NotificationDropdown.tsx`: Component for displaying and responding to notifications (added in notification system update)
 
 ## Key Technical Decisions
 - Date handling: Implemented proper timezone conversion to prevent date shifting
