@@ -1,183 +1,202 @@
-# Supabase CLI
+# Student Event Planner
 
-[![Coverage Status](https://coveralls.io/repos/github/supabase/cli/badge.svg?branch=main)](https://coveralls.io/github/supabase/cli?branch=main) [![Bitbucket Pipelines](https://img.shields.io/bitbucket/pipelines/supabase-cli/setup-cli/master?style=flat-square&label=Bitbucket%20Canary)](https://bitbucket.org/supabase-cli/setup-cli/pipelines) [![Gitlab Pipeline Status](https://img.shields.io/gitlab/pipeline-status/sweatybridge%2Fsetup-cli?label=Gitlab%20Canary)
-](https://gitlab.com/sweatybridge/setup-cli/-/pipelines)
+This is a comprehensive web application designed to help students manage events, tasks, and collaborations efficiently. It provides a centralized calendar where users can create and track events, set reminders, and collaborate with others through invitations and participant lists. Users can manage their personal profiles, view schedules in multiple calendar views, and receive timely notifications to stay organized.
 
-[Supabase](https://supabase.io) is an open source Firebase alternative. We're building the features of Firebase using enterprise-grade open source tools.
+## Prerequisites
 
-This repository contains all the functionality for Supabase CLI.
+Before you begin, ensure you have the following installed on your system:
 
-- [x] Running Supabase locally
-- [x] Managing database migrations
-- [x] Creating and deploying Supabase Functions
-- [x] Generating types directly from your database schema
-- [x] Making authenticated HTTP requests to [Management API](https://supabase.com/docs/reference/api/introduction)
+- Node.js (version 18.17 or later)
+- npm, yarn, or pnpm package manager
+- Git
 
-## Getting started
+## Technologies Used
 
-### Install the CLI
+- [Next.js 15.5.4](https://nextjs.org/) - React framework
+- [React 19.1.0](https://reactjs.org/) - JavaScript library for building user interfaces
+- [React DOM 19.1.0](https://reactjs.org/) - React package for DOM-specific methods
+- [TypeScript](https://www.typescriptlang.org/) - Typed JavaScript language
+- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
+- [ShadCN UI](https://ui.shadcn.com/) - Accessible and customizable UI components
+- [Radix UI Primitives](https://www.radix-ui.com/) - Low-level UI components
+- [Lucide React](https://lucide.dev/) - Icon library
+- [Supabase](https://supabase.com/) - Backend-as-a-Service for authentication and database
+- [React Hook Form](https://react-hook-form.com/) - Form handling library
+- [Zod](https://zod.dev/) - Schema validation library
+- [Docker](https://docker.com/) - Containerization platform
+- [Docker Compose](https://docs.docker.com/compose/) - Container orchestration
+- [FullCalendar](https://fullcalendar.io/) - Calendar components for event visualization
+- [date-fns](https://date-fns.org/) - Date manipulation library
+- [React Hot Toast](https://react-hot-toast.com/) - Notification system
 
-Available via [NPM](https://www.npmjs.com) as dev dependency. To install:
+## Installation
 
-```bash
-npm i supabase --save-dev
-```
+Follow these steps to set up the project locally:
 
-To install the beta release channel:
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   ```
 
-```bash
-npm i supabase@beta --save-dev
-```
+2. Navigate to your project directory:
+   ```bash
+   cd cpe334se-finalproject
+   ```
 
-When installing with yarn 4, you need to disable experimental fetch with the following nodejs config.
+3. Install the required dependencies:
+   ```bash
+   npm install
+   ```
+4. Set up your environment variables by creating a `.env.local` file with your Supabase credentials:
+     ```
+     NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+     NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+     ```
+## Running the Application
 
-```
-NODE_OPTIONS=--no-experimental-fetch yarn add supabase
-```
+### Development Mode
 
-> **Note**
-For Bun versions below v1.0.17, you must add `supabase` as a [trusted dependency](https://bun.sh/guides/install/trusted) before running `bun add -D supabase`.
-
-<details>
-  <summary><b>macOS</b></summary>
-
-  Available via [Homebrew](https://brew.sh). To install:
-
-  ```sh
-  brew install supabase/tap/supabase
-  ```
-
-  To install the beta release channel:
-  
-  ```sh
-  brew install supabase/tap/supabase-beta
-  brew link --overwrite supabase-beta
-  ```
-  
-  To upgrade:
-
-  ```sh
-  brew upgrade supabase
-  ```
-</details>
-
-<details>
-  <summary><b>Windows</b></summary>
-
-  Available via [Scoop](https://scoop.sh). To install:
-
-  ```powershell
-  scoop bucket add supabase https://github.com/supabase/scoop-bucket.git
-  scoop install supabase
-  ```
-
-  To upgrade:
-
-  ```powershell
-  scoop update supabase
-  ```
-</details>
-
-<details>
-  <summary><b>Linux</b></summary>
-
-  Available via [Homebrew](https://brew.sh) and Linux packages.
-
-  #### via Homebrew
-
-  To install:
-
-  ```sh
-  brew install supabase/tap/supabase
-  ```
-
-  To upgrade:
-
-  ```sh
-  brew upgrade supabase
-  ```
-
-  #### via Linux packages
-
-  Linux packages are provided in [Releases](https://github.com/supabase/cli/releases). To install, download the `.apk`/`.deb`/`.rpm`/`.pkg.tar.zst` file depending on your package manager and run the respective commands.
-
-  ```sh
-  sudo apk add --allow-untrusted <...>.apk
-  ```
-
-  ```sh
-  sudo dpkg -i <...>.deb
-  ```
-
-  ```sh
-  sudo rpm -i <...>.rpm
-  ```
-
-  ```sh
-  sudo pacman -U <...>.pkg.tar.zst
-  ```
-</details>
-
-<details>
-  <summary><b>Other Platforms</b></summary>
-
-  You can also install the CLI via [go modules](https://go.dev/ref/mod#go-install) without the help of package managers.
-
-  ```sh
-  go install github.com/supabase/cli@latest
-  ```
-
-  Add a symlink to the binary in `$PATH` for easier access:
-
-  ```sh
-  ln -s "$(go env GOPATH)/bin/cli" /usr/bin/supabase
-  ```
-
-  This works on other non-standard Linux distros.
-</details>
-
-<details>
-  <summary><b>Community Maintained Packages</b></summary>
-
-  Available via [pkgx](https://pkgx.sh/). Package script [here](https://github.com/pkgxdev/pantry/blob/main/projects/supabase.com/cli/package.yml).
-  To install in your working directory:
-
-  ```bash
-  pkgx install supabase
-  ```
-
-  Available via [Nixpkgs](https://nixos.org/). Package script [here](https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/supabase-cli/default.nix).
-</details>
-
-### Run the CLI
+To run the application in development mode with hot reloading:
 
 ```bash
-supabase bootstrap
+npm run dev
 ```
 
-Or using npx:
+The application will be available at `http://localhost:3000`
 
-```bash
-npx supabase bootstrap
+### Production Mode
+
+To build and run the application in production mode:
+
+1. Build the application:
+   ```bash
+   npm run build
+   ```
+
+2. Start the production server:
+   ```bash
+   npm start
+   ```
+
+The application will be available at `http://localhost:3000` (or the port specified in your environment)
+
+### Docker Mode
+
+To run the application using Docker:
+
+1. Make sure you have Docker and Docker Compose installed
+2. Build and start the containers:
+   ```bash
+   docker-compose up --build
+   ```
+
+The application will be available at `http://localhost:3000`
+
+
+## Project Structure
+
+```
+.
+├── public/
+│   ├── ...
+├── src/
+│   ├── app/
+│   │   ├── login/
+│   │   └── page.tsx      # Login page
+│   │   ├── signup/
+│   │   └── page.tsx      # Signup page
+│   │   ├── reset-password/
+│   │   │   └── page.tsx      # Password reset page
+│   │   ├── calendar/
+│   │   ├── page.tsx      # Main calendar view
+│   │   │   └── event/
+│   │   │       └── [id]/page.tsx  # Individual event details
+│   │   ├── profile/
+│   │   │   └── page.tsx      # User profile management
+│   │   ├── collaboration/
+│   │   │   └── page.tsx      # Collaboration features
+│   │   ├── globals.css
+│   │   ├── layout.tsx
+│   │   └── page.tsx        # Dashboard/Home page
+│   ├── components/
+│   │   ├── ProtectedRoute.tsx # Component to protect routes
+│   │   ├── Calendar/          # Calendar-specific components
+│   │   │   ├── CalendarView.tsx
+│   │   │   ├── EventCard.tsx
+│   │   │   └── TaskList.tsx
+│   │   ├── Collaboration/     # Collaboration components
+│   │   │   ├── InviteModal.tsx
+│   │   │   └── ParticipantList.tsx
+│   │   └── ui/
+│   │       ├── button.tsx
+│   │       ├── card.tsx
+│   │       ├── input.tsx
+│   │       └── label.tsx
+│   ├── contexts/
+│   │   ├── AuthContext.tsx   # Manages authentication state
+│   │   ├── CalendarContext.tsx # Manages calendar state and events
+│   │   └── NotificationContext.tsx # Handles notifications
+│   └── lib/
+│       ├── supabase.ts     # Supabase client initialization
+│       ├── calendar-utils.ts # Calendar-specific utility functions
+│       └── utils.ts
+├── docs/
+│   └── adr/
+│       └── 001-supabase-authentication-approach.md
+├── .env.local.example      # Example environment variables
+├── docker-compose.yml
+├── Dockerfile
+├── next.config.ts
+└── tsconfig.json
 ```
 
-The bootstrap command will guide you through the process of setting up a Supabase project using one of the [starter](https://github.com/supabase-community/supabase-samples/blob/main/samples.json) templates.
+## Features
 
-## Docs
+- **Centralized Calendar**: Create, edit, and manage events on a visual calendar
+- **Task Management**: Track tasks with due dates, priorities, and reminders
+- **Collaboration Tools**: Invite others to events, manage participant lists, and share calendars
+- **Multiple Calendar Views**: Switch between day, week, and month views
+- **User Authentication**: Full authentication flow with email/password and Google OAuth
+- **Protected Routes**: Secure pages accessible only to authenticated users
+- **Password Reset**: Functionality for users to reset their passwords
+- **Modern Tech Stack**: Next.js 15, React 19, and TypeScript
+- **Styled with Tailwind CSS**: A utility-first CSS framework for rapid UI development
+- **ShadCN UI Components**: A set of accessible and customizable UI components
+- **Docker Support**: Comes with `Dockerfile` and `docker-compose.yml` for easy containerization
+- **Real-time Updates**: Collaborative features with real-time synchronization
+- **Notifications**: Timely reminders and notifications for events and tasks
 
-Command & config reference can be found [here](https://supabase.com/docs/reference/cli/about).
+## Customization
 
-## Breaking changes
+To customize this application:
 
-We follow semantic versioning for changes that directly impact CLI commands, flags, and configurations.
+1. Modify the content in `src/app/page.tsx` to change the main dashboard
+2. Update the calendar components in `src/components/Calendar/` to adjust calendar views
+3. Update the global styles in `src/app/globals.css`
+4. Add new calendar features to the `src/components/Calendar/` directory
+5. Update the layout in `src/app/layout.tsx` as needed
 
-However, due to dependencies on other service images, we cannot guarantee that schema migrations, seed.sql, and generated types will always work for the same CLI major version. If you need such guarantees, we encourage you to pin a specific version of CLI in package.json.
+## Contributing
 
-## Developing
+If you'd like to contribute to this project:
 
-To run from source:
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-```sh
-# Go >= 1.22
-go run . help
-```
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Support
+
+If you encounter any issues or have questions about this application, please check the documentation for the individual technologies used:
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [React Documentation](https://react.dev/)
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+- [ShadCN UI Documentation](https://ui.shadcn.com/docs)
+- [Supabase Documentation](https://supabase.com/docs)
+- [FullCalendar Documentation](https://fullcalendar.io/docs)
