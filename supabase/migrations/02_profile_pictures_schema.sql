@@ -66,14 +66,18 @@ END;
 $$;
 
 -- Storage policies for profile pictures
+DROP POLICY IF EXISTS "Users can upload profile pictures" ON storage.objects;
 CREATE POLICY "Users can upload profile pictures" ON storage.objects FOR INSERT
-  WITH CHECK (bucket_id = 'profile-pictures' AND (auth.uid() = id OR auth.uid() = (SELECT user_id FROM storage.objects WHERE bucket_id = 'profile-pictures' AND name = storage.objects.name LIMIT 1)));
+  WITH CHECK (bucket_id = 'profile-pictures' AND auth.uid() = owner);
 
+DROP POLICY IF EXISTS "Users can update own profile pictures" ON storage.objects;
 CREATE POLICY "Users can update own profile pictures" ON storage.objects FOR UPDATE
   USING (bucket_id = 'profile-pictures' AND auth.uid() = owner);
 
+DROP POLICY IF EXISTS "Users can delete own profile pictures" ON storage.objects;
 CREATE POLICY "Users can delete own profile pictures" ON storage.objects FOR DELETE
   USING (bucket_id = 'profile-pictures' AND auth.uid() = owner);
 
+DROP POLICY IF EXISTS "Anyone can read profile pictures" ON storage.objects;
 CREATE POLICY "Anyone can read profile pictures" ON storage.objects FOR SELECT
   USING (bucket_id = 'profile-pictures');
