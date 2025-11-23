@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
+import { createContext, useContext, useEffect, useState, useRef, ReactNode } from 'react'
 import { supabase } from '@/lib/supabase'
 import { User } from '@supabase/supabase-js'
 import { updateProfileWithGoogleAvatar } from '@/lib/profilePictureUtils'
@@ -22,6 +22,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const prevUserRef = useRef<User | null>(null)
 
   useEffect(() => {
     logAuthEvent('INIT', 'Starting AuthContext initialization');
@@ -50,31 +51,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // Listen for auth changes
       const { data: { subscription } } = await supabase.auth.onAuthStateChange(
-        async (_event, session) => {
-          logAuthEvent('AUTH_STATE_CHANGE', { event: _event, hasSession: !!session, userId: session?.user?.id });
+        async (event, session) => {
+          logAuthEvent('AUTH_STATE_CHANGE', { event, hasSession: !!session, userId: session?.user?.id });
           
-          try {
-            const currentUser = session?.user || null;
-            setUser(currentUser);
-            
-            // If user signed in with Google and doesn't have an avatar yet,
-            // try to set their Google profile picture as their avatar
-            if (currentUser && currentUser.app_metadata?.provider === 'google') {
-              const googleAvatar = currentUser.user_metadata?.avatar_url || currentUser.user_metadata?.picture;
-              if (googleAvatar) {
-                // Update the user's profile with the Google avatar
-                await updateProfileWithGoogleAvatar(currentUser.id, googleAvatar);
-                logAuthEvent('AVATAR_UPDATE', { userId: currentUser.id, provider: 'google' });
+          // Only update user state if the user actually changed
+          const currentUser = session?.user || null;
+          
+          // Prevent unnecessary updates on TOKEN_REFRESHED events when the user is still the same
+          if (event === 'TOKEN_REFRESHED' && prevUserRef.current?.id === currentUser?.id) {
+            // For token refresh events with the same user, just update the ref to ensure we have the latest session
+            prevUserRef.current = currentUser;
+          } else if (prevUserRef.current?.id !== currentUser?.id) {
+            // Only update state when user actually changes
+            try {
+              setUser(currentUser);
+              prevUserRef.current = currentUser; // Update the ref after setting the user
+              
+              // If user signed in with Google and doesn't have an avatar yet,
+              // try to set their Google profile picture as their avatar
+              if (currentUser && currentUser.app_metadata?.provider === 'google') {
+                const googleAvatar = currentUser.user_metadata?.avatar_url || currentUser.user_metadata?.picture;
+                if (googleAvatar) {
+                  // Update the user's profile with the Google avatar
+                  await updateProfileWithGoogleAvatar(currentUser.id, googleAvatar);
+                  logAuthEvent('AVATAR_UPDATE', { userId: currentUser.id, provider: 'google' });
+                }
               }
+            } catch (error) {
+              console.error('Error in auth state change:', error);
+              logAuthEvent('AUTH_STATE_CHANGE_ERROR', { error: error instanceof Error ? error.message : String(error) });
+              // If there's an error during auth state change, ensure user is set to null
+              setUser(null);
             }
-          } catch (error) {
-            console.error('Error in auth state change:', error);
-            logAuthEvent('AUTH_STATE_CHANGE_ERROR', { error: error instanceof Error ? error.message : String(error) });
-            // If there's an error during auth state change, ensure user is set to null
-            setUser(null);
           }
           
-          setLoading(false);
+          // Only set loading to false after initial load, not on every auth state change
+          // This prevents the loading state from flickering on token refreshes
+          if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+            setLoading(false);
+          }
         }
       );
 
