@@ -9,22 +9,30 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
+    baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
     headless: !!process.env.CI,
-    storageState: 'tests/auth-states/google-auth.json',
   },
   projects: [
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
+      testMatch: /.*auth\.spec\.ts/,
+      testIgnore: /.*googleauth-flow\.spec\.ts/,
+    },
+    {
+      name: 'authenticated-chromium',
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: 'tests/auth-states/google-auth.json',
+      },
+      testMatch: /.*googleauth-flow\.spec\.ts/,
     },
     {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
-    },
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
+      testMatch: /.*auth\.spec\.ts/,
+      testIgnore: /.*googleauth-flow\.spec\.ts/,
     },
   ],
 });
