@@ -36,3 +36,4 @@ The calendar application is a React/Next.js application that allows users to cre
 - Consistent date handling across all timezones
 - Responsive and accessible UI components
 - Personalized user experience through profile pictures
+- Enhanced profile page with full name display instead of user ID and improved field ordering

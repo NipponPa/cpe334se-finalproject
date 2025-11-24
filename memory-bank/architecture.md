@@ -66,6 +66,7 @@ The application now includes a comprehensive internal notification system for ev
 - `FriendSelection.tsx`: Component for selecting friends to invite to events
 - `NotificationDropdown.tsx`: Component for displaying and responding to notifications (added in notification system update)
 - `SignUpPage.tsx`: Component for user registration that handles username input and connects it to both display name in authentication and full name in user table
+- `ProfilePage.tsx`: Updated to replace User ID with Full Name display and swapped the position of Full Name and Email fields for better user experience
 
 ## Authentication Flow
 - `AuthContext.tsx`: Centralized authentication context that handles sign up, sign in, and sign out operations

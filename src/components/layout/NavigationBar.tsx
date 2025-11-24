@@ -23,33 +23,44 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
   notificationCount = 0,
   onNotificationClick,
 }) => {
-  const { user, signOut } = useAuth();
+ const { user, signOut } = useAuth();
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setUserMenuOpen] = useState(false);
   const [isNotificationDropdownOpen, setIsNotificationDropdownOpen] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [fullName, setFullName] = useState<string | null>(null);
 
   const monthYear = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
 
-  // Fetch user's avatar URL when user changes
+  // Fetch user's avatar URL and full name when user changes
   useEffect(() => {
-    const fetchUserAvatar = async () => {
+    const fetchUserProfile = async () => {
       if (user) {
         const { data, error } = await supabase
           .from('users')
-          .select('avatar_url')
+          .select('avatar_url, full_name')
           .eq('id', user.id)
           .single();
           
         if (data?.avatar_url) {
           setAvatarUrl(data.avatar_url);
+        } else {
+          setAvatarUrl(null); // Reset when user logs out
+        }
+        
+        if (data?.full_name) {
+          setFullName(data.full_name);
+        } else {
+          // Fallback to username or email if full_name is not set
+          setFullName(user?.user_metadata?.username || user?.email || 'User');
         }
       } else {
         setAvatarUrl(null); // Reset when user logs out
+        setFullName(null);
       }
     };
     
-    fetchUserAvatar();
+    fetchUserProfile();
   }, [user]);
 
   return (
@@ -113,7 +124,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                 size="sm"
               />
               {/* <span>{user.email}</span> */}
-              {user.user_metadata?.username && <span>({user.user_metadata.username})</span>}
+              {fullName && <span>({fullName})</span>}
             </button>
             {isUserMenuOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 text-black z-10">
@@ -130,9 +141,9 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                     >
                       {user.email}
                     </div>
-                    {user.user_metadata?.username && (
+                    {fullName && (
                       <div className="text-xs text-gray-500">
-                        {user.user_metadata.username}
+                        {fullName}
                       </div>
                     )}
                   </div>
@@ -215,7 +226,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
                       title={user.email || ''}>
                       {user.email}
                     </div>
-                    {user.user_metadata?.username && <div className="text-xs">{user.user_metadata.username}</div>}
+                    {fullName && <div className="text-xs">{fullName}</div>}
                   </div>
                 </div>
                 <Link href="/profile" className="block w-full text-left px-2 py-2 text-sm hover:bg-[#4a4747] rounded" onClick={() => setMobileMenuOpen(false)}>

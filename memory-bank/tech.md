@@ -79,3 +79,4 @@
 - signup/page.tsx: Captures username during signup and stores it in both Supabase authentication metadata and user table
 - AuthContext.tsx: Updated signUp function to accept userMetadata parameter for storing username during signup
 - signup-username-storage.test.ts: Unit tests verifying that username is properly stored in both authentication and user table during signup
+- profile/page.tsx: Updated to fetch and display full name from users table instead of user ID, and swapped the position of Full Name and Email fields in the UI

@@ -12,25 +12,31 @@ import Link from 'next/link';
 const ProfilePage = () => {
   const { user } = useAuth();
   const [avatarUrl, setAvatarUrl] = React.useState<string | null>(null);
+  const [fullName, setFullName] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
-    const fetchUserAvatar = async () => {
+    const fetchUserProfile = async () => {
       if (user) {
         const { data, error } = await supabase
           .from('users')
-          .select('avatar_url')
+          .select('avatar_url, full_name')
           .eq('id', user.id)
           .single();
           
-        if (data?.avatar_url) {
-          setAvatarUrl(data.avatar_url);
+        if (data) {
+          if (data.avatar_url) {
+            setAvatarUrl(data.avatar_url);
+          }
+          if (data.full_name) {
+            setFullName(data.full_name);
+          }
         }
       }
       setLoading(false);
     };
     
-    fetchUserAvatar();
+    fetchUserProfile();
   }, [user]);
 
   if (loading) {
@@ -98,13 +104,13 @@ const ProfilePage = () => {
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-sm font-medium text-gray-400">Email</h3>
-                    <p className="text-lg">{user.email}</p>
+                    <h3 className="text-sm font-medium text-gray-400">Full Name</h3>
+                    <p className="text-lg">{fullName || 'Not set'}</p>
                   </div>
                   
                   <div>
-                    <h3 className="text-sm font-medium text-gray-400">User ID</h3>
-                    <p className="text-lg font-mono text-gray-300">{user.id}</p>
+                    <h3 className="text-sm font-medium text-gray-400">Email</h3>
+                    <p className="text-lg">{user.email}</p>
                   </div>
                   
                   <div>
