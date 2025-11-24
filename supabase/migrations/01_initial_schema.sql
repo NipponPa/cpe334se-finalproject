@@ -69,7 +69,7 @@ CREATE TABLE public.user_preferences (
 CREATE TABLE public.notifications (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
-  title VARCHAR(25) NOT NULL,
+  title VARCHAR(255) NOT NULL,
   message TEXT NOT NULL,
   type VARCHAR(50) CHECK (type IN ('event_reminder', 'task_deadline', 'invitation', 'collaboration', 'general')),
   related_entity_type VARCHAR(50) CHECK (related_entity_type IN ('event', 'task', 'invitation')),
