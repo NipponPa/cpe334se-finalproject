@@ -47,6 +47,7 @@ const DayCell: React.FC<DayCellProps> = ({ date, events, onDayClick, onEventClic
     <div
       className={`
         border-r border-b border-[#FFD966] h-20 p-1 last:border-r-0 cursor-pointer
+        ${isToday ? 'bg-[#FFD966]/20' : ''}
         ${isSelected ? 'bg-[#FFD966] bg-opacity-30' : 'hover:bg-[#4a4646]'}
       `}
       onClick={handleClick}
@@ -54,7 +55,6 @@ const DayCell: React.FC<DayCellProps> = ({ date, events, onDayClick, onEventClic
       <div className="w-full h-full flex flex-col">
         <span className={`
           self-start px-1 py-0.5 rounded
-          ${isToday ? 'border-2 border-[#FFD966] rounded-full w-7 h-7 flex items-center justify-center text-sm font-semibold' : ''}
           ${isSelected ? 'text-[#FFD966] font-bold' : ''}
           ${isCurrentMonth ? 'text-white' : 'text-gray-500'}
         `}>
