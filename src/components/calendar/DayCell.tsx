@@ -46,23 +46,24 @@ const DayCell: React.FC<DayCellProps> = ({ date, events, onDayClick, onEventClic
   return (
     <div
       className={`
-        border-r border-b border-[#FFD966] h-20 p-1 last:border-r-0 cursor-pointer
-        ${isToday ? 'bg-[#FFD966]/20' : ''}
-        ${isSelected ? 'bg-[#FFD966] bg-opacity-30' : 'hover:bg-[#4a4646]'}
+        relative h-24 p-2 cursor-pointer transition-colors duration-150
+        border-l border-r border-gray-700
+        ${isToday ? 'bg-[#FFD966]/10 ring-1 ring-[#FFD966]/60' : 'bg-transparent'}
+        ${isSelected ? 'ring-2 ring-[#FFD966]/60 bg-[#FFD966]/10' : 'hover:bg-white/3'}
       `}
       onClick={handleClick}
     >
       <div className="w-full h-full flex flex-col">
         <span className={`
-          self-start px-1 py-0.5 rounded
-          ${isSelected ? 'text-[#FFD966] font-bold' : ''}
-          ${isCurrentMonth ? 'text-white' : 'text-gray-500'}
+          inline-flex items-center justify-center w-7 h-7 rounded-full text-sm font-semibold
+          ${isCurrentMonth ? 'bg-white/5 text-white' : 'bg-transparent text-gray-400'}
+          ${isSelected ? 'bg-[#FFD966] text-[#353131]' : ''}
         `}>
           {day}
         </span>
-        
-        <div className="flex-grow overflow-y-auto mt-1 space-y-1">
-          {dayEvents.slice(0, 3).map((event, index) => {
+
+        <div className="flex-grow overflow-y-auto mt-2 space-y-2 pr-1">
+          {dayEvents.slice(0, 4).map((event, index) => {
             const timeString = event.isAllDay ? 'All day' : formatTime(event.startTime);
             
             // Determine if this day is the start, middle, or end of a multi-day event
@@ -80,25 +81,26 @@ const DayCell: React.FC<DayCellProps> = ({ date, events, onDayClick, onEventClic
             const isStartDay = date.toDateString() === eventStart.toDateString();
             const isEndDay = date.toDateString() === eventEnd.toDateString();
             
-            let eventClass = "text-xs bg-[#FFD966] text-[#353131] p-1 rounded truncate cursor-pointer hover:opacity-90";
+            // New compact, modern event pill design
+            let eventClass = "flex items-center gap-2 text-sm p-1.5 rounded-md bg-white/5 hover:bg-white/10 transition-opacity truncate cursor-pointer";
             
-            // Add special styling for multi-day events
+            // Add small accent bar for multi-day/colored event marker
+            const accentClass = event.isAllDay ? "bg-[#FFD966]" : "bg-[#FFD966]";
+
+            // Add special styling for multi-day events (keeps existing logic, but simplified visuals)
             if (isMultiDay) {
               if (isStartDay && isEndDay) {
-                // Single day event within a multi-day range (shouldn't happen but just in case)
-                eventClass += " border-l-4 border-l-[#4a4646]";
+                // Keep accent both sides visually - simplified by ring
+                eventClass += " ring-1 ring-[#4a4646]/30";
               } else if (isStartDay) {
-                // First day of multi-day event
-                eventClass += " border-l-4 border-l-[#4a4646] border-r-4 border-r-[#4a4646]";
+                eventClass += " rounded-l-md";
               } else if (isEndDay) {
-                // Last day of multi-day event
-                eventClass += " border-r-4 border-r-[#4a4646]";
+                eventClass += " rounded-r-md";
               } else {
-                // Middle day of multi-day event
-                eventClass += " border-l-4 border-l-[#4a4646] border-r-4 border-r-[#4a4646]";
+                eventClass += " opacity-95";
               }
             }
-            
+
             return (
               <div
                 key={event.id}
@@ -108,15 +110,18 @@ const DayCell: React.FC<DayCellProps> = ({ date, events, onDayClick, onEventClic
                   if (onEventClick) onEventClick(event);
                 }}
               >
-                <div className="truncate font-medium">{event.title}</div>
-                {timeString && (
-                  <div className="text-[0.6rem] opacity-80">{timeString}</div>
-                )}
+                <div className={`w-1 h-5 rounded-sm ${accentClass} flex-shrink-0`} />
+                <div className="min-w-0 flex-1">
+                  <div className="truncate font-medium text-sm">{event.title}</div>
+                  {timeString && (
+                    <div className="text-[0.65rem] text-gray-300 leading-none">{timeString}</div>
+                  )}
+                </div>
               </div>
             );
           })}
-          {dayEvents.length > 3 && (
-            <div className="text-xs text-[#FFD966]">+{dayEvents.length - 3} more</div>
+          {dayEvents.length > 4 && (
+            <div className="text-sm text-[#FFD966]">+{dayEvents.length - 4} more</div>
           )}
         </div>
       </div>
