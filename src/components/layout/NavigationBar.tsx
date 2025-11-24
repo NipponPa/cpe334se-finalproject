@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { Bell, ChevronLeft, ChevronRight, Menu, User } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/lib/supabase';
-import ProfilePictureDisplay from '@/components/profile/ProfilePictureDisplay';
-import NotificationDropdown from '@/components/NotificationDropdown';
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import { Bell, ChevronLeft, ChevronRight, Menu, User } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/lib/supabase";
+import ProfilePictureDisplay from "@/components/profile/ProfilePictureDisplay";
+import NotificationDropdown from "@/components/NotificationDropdown";
 
 interface NavigationBarProps {
   currentDate: Date;
@@ -19,47 +19,51 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
   currentDate,
   onPrevMonth,
   onNextMonth,
- onGoToToday,
+  onGoToToday,
   notificationCount = 0,
   onNotificationClick,
 }) => {
- const { user, signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setUserMenuOpen] = useState(false);
-  const [isNotificationDropdownOpen, setIsNotificationDropdownOpen] = useState(false);
+  const [isNotificationDropdownOpen, setIsNotificationDropdownOpen] =
+    useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [fullName, setFullName] = useState<string | null>(null);
 
-  const monthYear = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+  const monthYear = currentDate.toLocaleString("default", {
+    month: "long",
+    year: "numeric",
+  });
 
   // Fetch user's avatar URL and full name when user changes
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (user) {
         const { data, error } = await supabase
-          .from('users')
-          .select('avatar_url, full_name')
-          .eq('id', user.id)
+          .from("users")
+          .select("avatar_url, full_name")
+          .eq("id", user.id)
           .single();
-          
+
         if (data?.avatar_url) {
           setAvatarUrl(data.avatar_url);
         } else {
           setAvatarUrl(null); // Reset when user logs out
         }
-        
+
         if (data?.full_name) {
           setFullName(data.full_name);
         } else {
           // Fallback to username or email if full_name is not set
-          setFullName(user?.user_metadata?.username || user?.email || 'User');
+          setFullName(user?.user_metadata?.username || user?.email || "User");
         }
       } else {
         setAvatarUrl(null); // Reset when user logs out
         setFullName(null);
       }
     };
-    
+
     fetchUserProfile();
   }, [user]);
 
@@ -68,9 +72,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
       {/* Logo */}
       <div className="leading-tight text-center">
         <Link href="/" className="inline-block">
-          <span className="block text-xl font-bold italic">
-            PJ
-          </span>
+          <span className="block text-xl font-bold italic">PJ</span>
           <span className="block text-xs italic font-light">
             pakjim planner
           </span>
@@ -81,14 +83,23 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
       <div className="hidden md:flex items-center space-x-4">
         {/* Date Controls */}
         <div className="hidden lg:flex items-center space-x-2">
-          <button onClick={onPrevMonth} className="hover:bg-[#FFD966] hover:text-black rounded-full p-2 transition-colors">
+          <button
+            onClick={onPrevMonth}
+            className="hover:bg-[#FFD966] hover:text-black rounded-full p-2 transition-colors"
+          >
             <ChevronLeft size={20} />
           </button>
           <span className="w-36 text-center">{monthYear}</span>
-          <button onClick={onNextMonth} className="hover:bg-[#FFD966] hover:text-black rounded-full p-2 transition-colors">
+          <button
+            onClick={onNextMonth}
+            className="hover:bg-[#FFD966] hover:text-black rounded-full p-2 transition-colors"
+          >
             <ChevronRight size={20} />
           </button>
-          <button onClick={onGoToToday} className="bg-[#FFD966] text-black px-4 py-2 rounded-md hover:bg-yellow-400 transition-colors">
+          <button
+            onClick={onGoToToday}
+            className="bg-[#FFD966] text-black px-4 py-2 rounded-md hover:bg-yellow-400 transition-colors"
+          >
             Today
           </button>
         </div>
@@ -96,7 +107,9 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
         {/* Notifications */}
         <div className="relative">
           <button
-            onClick={() => setIsNotificationDropdownOpen(!isNotificationDropdownOpen)}
+            onClick={() =>
+              setIsNotificationDropdownOpen(!isNotificationDropdownOpen)
+            }
             className="relative p-2 hover:bg-[#FFD966] hover:text-black rounded-full transition-colors"
           >
             <Bell size={20} />
@@ -117,45 +130,53 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
         {/* User Info Dropdown */}
         {user && (
           <div className="relative">
-            <button onClick={() => setUserMenuOpen(!isUserMenuOpen)} className="flex items-center space-x-2">
+            <button
+              onClick={() => setUserMenuOpen(!isUserMenuOpen)}
+              className="flex items-center space-x-2"
+            >
               <ProfilePictureDisplay
                 imageUrl={avatarUrl}
-                defaultText={user.email?.split('@')[0] || 'User'}
+                defaultText={user.email?.split("@")[0] || "User"}
                 size="sm"
               />
-              {/* <span>{user.email}</span> */}
-              {fullName && <span>({fullName})</span>}
             </button>
             {isUserMenuOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 text-black z-10">
                 <div className="flex items-center space-x-2 px-4 py-2">
                   <ProfilePictureDisplay
                     imageUrl={avatarUrl}
-                    defaultText={user.email?.split('@')[0] || 'User'}
+                    defaultText={user.email?.split("@")[0] || "User"}
                     size="sm"
                   />
                   <div>
                     <div
                       className="text-sm font-medium max-w-[120px] truncate"
-                      title={user.email || ''}
+                      title={fullName || ""}
                     >
-                      {user.email}
+                      {fullName}
                     </div>
-                    {fullName && (
-                      <div className="text-xs text-gray-500">
-                        {fullName}
+                    {user.email && (
+                      <div className="text-xs text-gray-500 max-w-[120px] truncate">
+                        {user.email}
                       </div>
                     )}
                   </div>
                 </div>
                 <div className="border-t border-gray-200"></div>
-                <Link href="/profile" className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onClick={() => setUserMenuOpen(false)}>
+                <Link
+                  href="/profile"
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  onClick={() => setUserMenuOpen(false)}
+                >
                   <div className="flex items-center">
                     <User className="mr-2 h-4 w-4" />
                     <span>Profile</span>
                   </div>
                 </Link>
-                <button onClick={signOut} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                <button
+                  onClick={signOut}
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
                   Sign Out
                 </button>
               </div>
@@ -163,7 +184,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
           </div>
         )}
       </div>
-      
+
       {/* Mobile: Hamburger Menu */}
       <div className="md:hidden">
         <button onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}>
@@ -175,69 +196,89 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
       {isMobileMenuOpen && (
         <div className="absolute top-16 left-0 w-full bg-[#373434] p-4 md:hidden z-20">
           {/* Date Controls */}
-           <div className="flex items-center justify-center space-x-2 mb-4">
-            <button onClick={onPrevMonth} className="hover:bg-[#FFD966] hover:text-black rounded-full p-2 transition-colors">
+          <div className="flex items-center justify-center space-x-2 mb-4">
+            <button
+              onClick={onPrevMonth}
+              className="hover:bg-[#FFD966] hover:text-black rounded-full p-2 transition-colors"
+            >
               <ChevronLeft size={20} />
             </button>
             <span className="w-36 text-center">{monthYear}</span>
-            <button onClick={onNextMonth} className="hover:bg-[#FFD966] hover:text-black rounded-full p-2 transition-colors">
+            <button
+              onClick={onNextMonth}
+              className="hover:bg-[#FFD966] hover:text-black rounded-full p-2 transition-colors"
+            >
               <ChevronRight size={20} />
             </button>
           </div>
-          <button onClick={onGoToToday} className="w-full bg-[#FFD966] text-black px-4 py-2 rounded-md hover:bg-yellow-400 transition-colors mb-4">
+          <button
+            onClick={onGoToToday}
+            className="w-full bg-[#FFD966] text-black px-4 py-2 rounded-md hover:bg-yellow-400 transition-colors mb-4"
+          >
             Today
           </button>
-{/* Notifications */}
-<button
-  onClick={() => setIsNotificationDropdownOpen(!isNotificationDropdownOpen)}
-  className="flex items-center justify-between w-full p-2 mb-2 hover:bg-[#4a4747] rounded"
->
-  <span>Notifications</span>
-  {notificationCount > 0 && (
-     <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-60 rounded-full">
-      {notificationCount}
-     </span>
-  )}
-</button>
+          {/* Notifications */}
+          <button
+            onClick={() =>
+              setIsNotificationDropdownOpen(!isNotificationDropdownOpen)
+            }
+            className="flex items-center justify-between w-full p-2 mb-2 hover:bg-[#4a4747] rounded"
+          >
+            <span>Notifications</span>
+            {notificationCount > 0 && (
+              <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-60 rounded-full">
+                {notificationCount}
+              </span>
+            )}
+          </button>
 
-{/* Notification Dropdown for Mobile */}
-{isNotificationDropdownOpen && (
-  <div className="absolute top-16 right-0 w-full bg-[#373434] p-4 z-20">
-    <NotificationDropdown
-      isOpen={isNotificationDropdownOpen}
-      onClose={() => setIsNotificationDropdownOpen(false)}
-    />
-  </div>
-)}
+          {/* Notification Dropdown for Mobile */}
+          {isNotificationDropdownOpen && (
+            <div className="absolute top-16 right-0 w-full bg-[#373434] p-4 z-20">
+              <NotificationDropdown
+                isOpen={isNotificationDropdownOpen}
+                onClose={() => setIsNotificationDropdownOpen(false)}
+              />
+            </div>
+          )}
 
-          
           {/* User Info */}
           {user && (
             <div className="border-t border-gray-500 pt-2">
-                <div className="flex items-center space-x-2 px-2 py-1">
-                  <ProfilePictureDisplay
-                    imageUrl={avatarUrl}
-                    defaultText={user.email?.split('@')[0] || 'User'}
-                    size="sm"
-                  />
-                  <div>
-                    <div
-                      className="text-sm max-w-[200px] truncate"
-                      title={user.email || ''}>
-                      {user.email}
-                    </div>
-                    {fullName && <div className="text-xs">{fullName}</div>}
+              <div className="flex items-center space-x-2 px-2 py-1">
+                <ProfilePictureDisplay
+                  imageUrl={avatarUrl}
+                  defaultText={user.email?.split("@")[0] || "User"}
+                  size="sm"
+                />
+                <div>
+                  {/* บรรทัดบน: fullName */}
+                  <div
+                    className="text-sm max-w-[200px] truncate"
+                    title={fullName || ""}
+                  >
+                    {fullName}
                   </div>
+                  {/* บรรทัดล่าง: email */}
+                  {user.email && <div className="text-xs">{user.email}</div>}
                 </div>
-                <Link href="/profile" className="block w-full text-left px-2 py-2 text-sm hover:bg-[#4a4747] rounded" onClick={() => setMobileMenuOpen(false)}>
-                  <div className="flex items-center">
-                    <User className="mr-2 h-4 w-4" />
-                    <span>Profile</span>
-                  </div>
-                </Link>
-                <button onClick={signOut} className="block w-full text-left px-2 py-2 text-sm hover:bg-[#4a4747] rounded">
-                    Sign Out
-                </button>
+              </div>
+              <Link
+                href="/profile"
+                className="block w-full text-left px-2 py-2 text-sm hover:bg-[#4a4747] rounded"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <div className="flex items-center">
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </div>
+              </Link>
+              <button
+                onClick={signOut}
+                className="block w-full text-left px-2 py-2 text-sm hover:bg-[#4a4747] rounded"
+              >
+                Sign Out
+              </button>
             </div>
           )}
         </div>
