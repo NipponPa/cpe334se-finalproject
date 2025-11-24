@@ -16,10 +16,10 @@ export default function ProtectedRoute({
     <div className="min-h-screen flex items-center justify-center bg-[#373434]">
       <div className="w-full max-w-xs p-8 space-y-6">
         <div className="text-center">
-          <CardTitle className="text-3xl font-bold text-[#FFDA68]">Authentication Required</CardTitle>
+          <CardTitle className="text-3xl font-bold text-[#FFDA68]">Welcome</CardTitle>
         </div>
         <CardContent className="p-0 pt-4 text-center">
-          <p className="text-[#FFDA68]">Redirecting to login...</p>
+          <p className="text-[#FFDA68]">Redirecting to welcome page...</p>
         </CardContent>
       </div>
     </div>
@@ -30,8 +30,8 @@ export default function ProtectedRoute({
 
   useEffect(() => {
     if (!loading && !user) {
-      // Redirect to login if user is not authenticated
-      router.push('/login')
+      // Redirect to welcome page if user is not authenticated
+      router.push('/welcome')
     }
   }, [user, loading, router])
 
