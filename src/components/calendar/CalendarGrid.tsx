@@ -52,13 +52,13 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({ currentDate, events, onDayC
   const days = getCalendarDays();
 
   return (
-    <div className="bg-[#353131] rounded-lg overflow-hidden border border-[#FFD966]">
+    <div className="bg-[#2b2a2a] rounded-lg overflow-hidden shadow-inner">
       {/* Day of week headers */}
-      <div className="grid grid-cols-7 bg-[#FFD966]">
+      <div className="grid grid-cols-7 bg-gradient-to-r from-[#FFD966] to-[#FDE68A]">
         {daysOfWeek.map((day, index) => (
           <div
             key={index}
-            className="py-3 text-center font-medium text-[#353131] border-r border-[#353131] last:border-r-0 text-lg"
+            className="py-3 text-center font-semibold text-[#353131] border-r border-gray-700 last:border-r-0 text-sm uppercase tracking-wide"
           >
             {day}
           </div>
@@ -66,7 +66,7 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({ currentDate, events, onDayC
       </div>
       
       {/* Calendar grid */}
-      <div className="grid grid-cols-7">
+      <div className="grid grid-cols-7 divide-x divide-gray-700 divide-y divide-gray-700">
         {days.map((date, index) => (
           <DayCell
             key={index}

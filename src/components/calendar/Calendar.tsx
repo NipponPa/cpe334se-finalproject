@@ -244,7 +244,7 @@ const Calendar: React.FC<CalendarProps> = ({
 
 
  return (
-    <div className="bg-[#353131] text-white rounded-lg shadow-lg p-8 max-w-6xl mx-auto border border-[#FFD966]">
+    <div className="bg-gradient-to-br from-[#292828] to-[#353131] text-white rounded-lg shadow-2xl p-6 max-w-6xl mx-auto">
       <CalendarHeader
         currentDate={currentDate}
         onPrevMonth={onPrevMonth}
