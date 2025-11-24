@@ -91,3 +91,37 @@
 - Notifications are created with the correct event ID instead of temporary IDs
 - The UI properly refreshes after event creation
 - The notification system works without UUID syntax errors
+
+## Implement Event Deletion Functionality
+
+**Last performed:** November 24, 2025
+**Files modified:**
+- `src/components/calendar/EventDetailView.tsx` - Added delete button with confirmation dialog and styling
+- `src/components/calendar/Calendar.tsx` - Implemented handleDeleteEvent function with Supabase database integration and event click handler for FullCalendar
+- `src/components/Calendar.tsx` - Added delete functionality for FullCalendar events
+
+**Steps performed:**
+1. Added onDeleteEvent prop to EventDetailView component interface
+2. Created delete button in EventDetailView alongside edit button with proper styling
+3. Implemented handleDeleteEvent function in Calendar component with Supabase database integration
+4. Added confirmation dialog to prevent accidental deletions
+5. Updated EventDetailView to include delete button in the UI with proper positioning
+6. Implemented event deletion functionality in FullCalendar event click handler
+7. Added proper error handling and user feedback for deletion operations
+8. Ensured UI refreshes after successful deletion to reflect changes
+
+**Important notes:**
+- Users can delete events from both the EventDetailView (day detail view) and directly from the calendar grid
+- Deletion respects Row Level Security (RLS) policies - users can only delete their own events
+- The database schema already has CASCADE deletion for related event_participants records
+- Confirmation dialogs help prevent accidental deletions
+- UI automatically refreshes after deletion to show updated calendar view
+- Both deletion paths (EventDetailView and FullCalendar) use the same underlying Supabase deletion function
+
+**Testing:**
+- Users can successfully delete events from the day detail view
+- Users can successfully delete events by clicking on them in the calendar grid
+- Deletion properly respects RLS policies (users can only delete their own events)
+- Related event_participants records are automatically deleted due to CASCADE constraints
+- UI properly refreshes after deletion to reflect the removed event
+- Confirmation dialogs prevent accidental deletions

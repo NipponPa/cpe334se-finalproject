@@ -62,7 +62,7 @@ The application now includes a comprehensive internal notification system for ev
 - `CalendarGrid.tsx`: Renders the calendar grid layout with days
 - `DayCell.tsx`: Represents individual days in the calendar with event visualization
 - `AddEventForm.tsx`: Modal form for creating and editing events
-- `EventDetailView.tsx`: Modal showing events for a selected day with edit capabilities
+- `EventDetailView.tsx`: Modal showing events for a selected day with edit and delete capabilities
 - `FriendSelection.tsx`: Component for selecting friends to invite to events
 - `NotificationDropdown.tsx`: Component for displaying and responding to notifications (added in notification system update)
 - `SignUpPage.tsx`: Component for user registration that handles username input and connects it to both display name in authentication and full name in user table
@@ -92,5 +92,24 @@ The application now includes a comprehensive internal notification system for ev
 - Calendar.tsx orchestrates the main functionality and passes state to child components
 - DayCell.tsx communicates with Calendar.tsx when days are clicked
 - AddEventForm.tsx receives selected day information and callbacks for saving events
-- EventDetailView.tsx shows events for a selected day and provides editing capabilities
+- EventDetailView.tsx shows events for a selected day and provides editing and deletion capabilities
 - All components work together to provide a consistent date handling and visualization experience
+
+## Event Deletion Architecture
+The event deletion functionality is implemented with the following components:
+
+### UI Components
+- `EventDetailView.tsx`: Added delete button alongside edit button with confirmation dialog
+- `Calendar.tsx` (FullCalendar): Added event click handler that provides delete option with confirmation
+- Both deletion paths use the same underlying Supabase deletion function
+
+### Database Integration
+- Uses Supabase client to delete events from the 'events' table
+- Leverages existing Row Level Security (RLS) policies that only allow users to delete their own events
+- Takes advantage of existing CASCADE deletion for related event_participants records
+- Proper error handling and user feedback mechanisms
+
+### Security Considerations
+- RLS policies ensure users can only delete events they created
+- Confirmation dialogs prevent accidental deletions
+- All deletions go through Supabase client which enforces security rules

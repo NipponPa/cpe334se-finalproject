@@ -15,6 +15,7 @@ interface EventDetailViewProps {
   onClose: () => void;
   onAddEvent: () => void;
   onEditEvent?: (event: Event) => void;
+  onDeleteEvent?: (event: Event) => void;
 }
 
 const EventDetailView: React.FC<EventDetailViewProps> = ({
@@ -22,7 +23,8 @@ const EventDetailView: React.FC<EventDetailViewProps> = ({
   events,
   onClose,
   onAddEvent,
-  onEditEvent
+  onEditEvent,
+  onDeleteEvent
 }) => {
   if (!selectedDay) {
     return null;
@@ -96,14 +98,24 @@ const EventDetailView: React.FC<EventDetailViewProps> = ({
                         `${event.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${event.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
                       )}
                     </p>
-                    {onEditEvent && (
-                      <button
-                        onClick={() => onEditEvent(event)}
-                        className="absolute top-2 right-2 text-xs bg-[#FFD966] text-[#353131] px-2 py-1 rounded hover:bg-[#ffc827] focus:outline-none"
-                      >
-                        Edit
-                      </button>
-                    )}
+                    <div className="absolute top-2 right-2 flex space-x-1">
+                      {onEditEvent && (
+                        <button
+                          onClick={() => onEditEvent(event)}
+                          className="text-xs bg-[#FFD966] text-[#353131] px-2 py-1 rounded hover:bg-[#ffc827] focus:outline-none"
+                        >
+                          Edit
+                        </button>
+                      )}
+                      {onDeleteEvent && (
+                        <button
+                          onClick={() => onDeleteEvent(event)}
+                          className="text-xs bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 focus:outline-none"
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </div>
                   </div>
                 );
               })}

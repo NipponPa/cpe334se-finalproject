@@ -85,3 +85,14 @@
 - E2E_TestPlan.md: Updated to reflect new expected redirect behavior to `/welcome`
 - tests/e2e/auth.spec.ts: Updated test expectations to check for redirect to `/welcome`
 - tests/utils/auth.ts: Updated utility function to wait for redirect to `/welcome`
+
+## Event Deletion Implementation
+- EventDetailView.tsx: Added delete button with confirmation dialog and styling
+- Calendar.tsx (FullCalendar): Added event click handler with delete option
+- Calendar.tsx: Implemented handleDeleteEvent function with Supabase database integration
+- Event deletion uses Supabase client to perform DELETE operations on the events table
+- Proper error handling with user feedback messages
+- Confirmation dialogs to prevent accidental deletions
+- Automatic refresh of calendar view after successful deletion
+- Leverages existing RLS policies to ensure users can only delete their own events
+- Takes advantage of existing CASCADE deletion for related event_participants records

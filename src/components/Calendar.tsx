@@ -86,7 +86,7 @@ const Calendar: React.FC = () => {
         end_time: info.event.end ? info.event.end.toISOString() : null,
       })
       .eq('id', info.event.id);
-
+    
     if (error) {
       console.error('Error updating event:', error);
     }
@@ -113,6 +113,26 @@ const Calendar: React.FC = () => {
     }
   };
 
+  // Define the event type based on the database schema
+  type CalendarEvent = {
+    id: string;
+    title: string;
+    start: string; // ISO date string
+    end?: string; // ISO date string
+    allDay?: boolean;
+    description?: string;
+ };
+
+  // Define the type for the Supabase event row (based on selected fields)
+  type SupabaseEvent = {
+    id: string;
+    title: string;
+    start_time: string;
+    end_time: string | null;
+    description: string | null;
+    is_all_day: boolean;
+  };
+
   // Calendar options
   const calendarOptions = {
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
@@ -127,9 +147,50 @@ const Calendar: React.FC = () => {
     dayMaxEvents: true,
     selectable: true,
     dateClick: handleDateClick,
-    eventClick: (info: any) => {
-      // Handle event click, e.g., open a modal to view/edit details
-      alert(`Event: ${info.event.title}\nStart: ${info.event.startStr}\nEnd: ${info.event.endStr}`);
+    eventClick: async (info: any) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // Handle event click, show options to edit or delete
+      const action = window.confirm(`Event: ${info.event.title}\nStart: ${info.event.startStr}\nEnd: ${info.event.endStr}\n\nClick OK to delete, or Cancel to keep the event.`);
+      if (action) {
+        // User wants to delete the event
+        const result = window.confirm('Are you sure you want to delete this event?');
+        if (result) {
+          const { error } = await supabase
+            .from('events')
+            .delete()
+            .eq('id', info.event.id);
+          
+          if (error) {
+            console.error('Error deleting event:', error);
+            alert('Failed to delete event: ' + error.message);
+          } else {
+            // Remove the event from the calendar view
+            info.event.remove();
+            console.log('Event deleted successfully');
+            // Refresh events to ensure UI is up to date
+            const { data, error: fetchError } = await supabase
+              .from('events')
+              .select('id, title, start_time, end_time, description, is_all_day')
+              .eq('created_by', user?.id);
+            
+            if (fetchError) {
+              console.error('Error refreshing events:', fetchError);
+            } else {
+              // Transform the data to match FullCalendar's expected format
+              const calendarEvents: CalendarEvent[] = data.map((event: SupabaseEvent) => ({
+                id: event.id,
+                title: event.title,
+                start: event.start_time,
+                end: event.end_time || undefined,
+                allDay: event.is_all_day,
+                description: event.description || undefined,
+              }));
+              
+              setEvents(calendarEvents);
+            }
+          }
+        }
+      }
     },
     eventChange: handleEventChange, // Handle drag/drop and resize
     // Additional styling options

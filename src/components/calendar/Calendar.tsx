@@ -122,6 +122,30 @@ const Calendar: React.FC<CalendarProps> = ({
     setSelectedDay(new Date(event.startTime));
   };
 
+  const handleDeleteEvent = async (event: Event) => {
+    if (window.confirm('Are you sure you want to delete this event?')) {
+      try {
+        const { error } = await supabase
+          .from('events')
+          .delete()
+          .eq('id', event.id);
+        
+        if (error) {
+          console.error('Error deleting event:', error);
+          alert('Failed to delete event: ' + error.message);
+          return;
+        }
+        
+        // Remove the event from the local state
+        setEvents(prevEvents => prevEvents.filter(e => e.id !== event.id));
+        console.log('Event deleted successfully');
+      } catch (error) {
+        console.error('Unexpected error deleting event:', error);
+        alert('An unexpected error occurred while deleting the event');
+      }
+    }
+  };
+
   const handleAddEventFormClose = () => {
     setIsAddEventFormOpen(false);
     setEditingEvent(null); // Clear editing event when closing form
@@ -261,6 +285,7 @@ const Calendar: React.FC<CalendarProps> = ({
           onClose={handleCloseDetail}
           onAddEvent={handleAddEvent}
           onEditEvent={handleEditEvent}
+          onDeleteEvent={handleDeleteEvent}
         />
       )}
       <AddEventForm

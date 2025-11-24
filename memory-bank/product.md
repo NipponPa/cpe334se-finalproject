@@ -13,6 +13,7 @@ The calendar application is a React/Next.js application that allows users to cre
 - Event detail view showing all events for a selected day
 - Internal notification system for event invitations with accept/decline functionality
 - Notification bell in navigation bar showing unread notification count
+- Event deletion functionality allowing users to remove events they no longer need
 
 ## Enhanced Features
 - Visual date selection indicators: The calendar now clearly shows which day is selected when creating events, with visual feedback in the form of highlighted days and date displays in the AddEventForm header.
@@ -20,6 +21,7 @@ The calendar application is a React/Next.js application that allows users to cre
 - Editable events functionality: Users can click on existing events to edit them, with the form pre-populated with current event details and clear UI indicators distinguishing between creating new events and editing existing ones.
 - Proper date handling: Fixed timezone-related issues that were causing incorrect dates, ensuring all event types (single-day, multi-day, all-day) display correctly without date shifting.
 - Internal notification system: Replaced email invitations with an internal notification system for event invitations. Users can invite registered friends and they receive notifications in their notification bell with accept/decline options. Only registered users can be invited (external email functionality removed). Fixed the event creation flow to ensure notifications are created with actual event IDs from the database rather than temporary IDs.
+- Event deletion: Users can now delete events they no longer need using delete buttons in the event detail view or by clicking on events in the calendar grid. Deletion includes confirmation dialogs to prevent accidental removals and properly updates the UI after deletion.
 
 ## Profile Picture Management
 - User profile pictures with upload, update, and deletion capabilities
