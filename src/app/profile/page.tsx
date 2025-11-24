@@ -23,7 +23,7 @@ const ProfilePage = () => {
           .select('avatar_url, full_name')
           .eq('id', user.id)
           .single();
-          
+
         if (data) {
           if (data.avatar_url) {
             setAvatarUrl(data.avatar_url);
@@ -35,7 +35,7 @@ const ProfilePage = () => {
       }
       setLoading(false);
     };
-    
+
     fetchUserProfile();
   }, [user]);
 
@@ -58,96 +58,100 @@ const ProfilePage = () => {
   return (
     <div className="min-h-screen bg-[#353131] py-8 px-4">
       <div className="max-w-6xl mx-auto">
+        {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-[#FFDA68]">Your Profile</h1>
           <Link href="/">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="bg-[#FFD966] text-black hover:bg-yellow-400 border-none"
             >
               Back to Calendar
             </Button>
           </Link>
         </div>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-1">
-            <Card className="bg-[#4a4747] border-none text-white">
-              <CardHeader>
-                <CardTitle className="text-[#FFDA68]">Profile Picture</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-col items-center">
-                  <ProfilePictureDisplay 
-                    imageUrl={avatarUrl} 
-                    defaultText={user.email?.split('@')[0] || 'User'} 
-                    size="xl" 
-                    className="mb-4"
-                  />
-                  <p className="text-center text-gray-300 mb-4">
-                    {avatarUrl ? 'Click below to change your profile picture' : 'Click below to add a profile picture'}
+
+        {/* Single Profile Card */}
+        <div className="grid grid-cols-1">
+          <Card className="bg-[#4a4747] border-none text-white min-h-[300px]">
+            <CardHeader>
+              <CardTitle className="text-[#FFDA68] pb-6 pt-1">Profile</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col lg:flex-row gap-8">
+                {/* LEFT: Profile picture + edit */}
+                <div className="flex flex-col items-center lg:w-1/3">
+                  <div className="relative">
+                    <ProfilePictureDisplay
+                      imageUrl={avatarUrl}
+                      defaultText={user.email?.split('@')[0] || 'User'}
+                      size="xl"
+                      className="mb-4"
+                    />
+
+                    {/* ตำแหน่งสำหรับปุ่ม / ไอคอนแก้ไขรูปโปรไฟล์ (overlay มุมล่างขวา) */}
+                    <div className="absolute bottom-2 right-2">
+                      <ProfilePictureUpload
+                        onPictureChange={(newUrl) => setAvatarUrl(newUrl)}
+                      />
+                    </div>
+                  </div>
+
+                  {/* แสดง username แบบสั้น ๆ ใต้รูป (ใช้ fullName เป็น username) */}
+                  <p className="mt-2 text-center text-lg font-semibold">
+                    {fullName || user.email?.split('@')[0] || 'User'}
                   </p>
-                  
-                  <ProfilePictureUpload 
-                    onPictureChange={(newUrl) => setAvatarUrl(newUrl)} 
-                  />
+                  <p className="text-sm text-gray-300">
+                    {user.email}
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-          
-          <div className="lg:col-span-2">
-            <Card className="bg-[#4a4747] border-none text-white mb-6">
-              <CardHeader>
-                <CardTitle className="text-[#FFDA68]">Profile Information</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
+
+                {/* RIGHT: Profile information */}
+                <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
-                    <h3 className="text-sm font-medium text-gray-400">Full Name</h3>
-                    <p className="text-lg">{fullName || 'Not set'}</p>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-400">Email</h3>
-                    <p className="text-lg">{user.email}</p>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-400">Provider</h3>
+                    <h3 className="text-sm font-medium text-gray-400">
+                      User Name
+                    </h3>
                     <p className="text-lg">
-                      {user.app_metadata?.provider ? 
-                        user.app_metadata.provider.charAt(0).toUpperCase() + user.app_metadata.provider.slice(1) : 
-                        'Email/Password'}
+                      {fullName || 'Not set'}
                     </p>
                   </div>
-                  
+
                   <div>
-                    <h3 className="text-sm font-medium text-gray-400">Account Created</h3>
+                    <h3 className="text-sm font-medium text-gray-400">
+                      Email
+                    </h3>
                     <p className="text-lg">
-                      {user.created_at ? new Date(user.created_at).toLocaleDateString() : 'Unknown'}
+                      {user.email}
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-400">
+                      Provider
+                    </h3>
+                    <p className="text-lg">
+                      {user.app_metadata?.provider
+                        ? user.app_metadata.provider.charAt(0).toUpperCase() +
+                          user.app_metadata.provider.slice(1)
+                        : 'Email/Password'}
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-400">
+                      Account Created
+                    </h3>
+                    <p className="text-lg">
+                      {user.created_at
+                        ? new Date(user.created_at).toLocaleDateString()
+                        : 'Unknown'}
                     </p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-[#4a4747] border-none text-white">
-              <CardHeader>
-                <CardTitle className="text-[#FFDA68]">Account Security</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <Button variant="outline" className="w-full bg-[#FFD966] text-black hover:bg-yellow-400 border-none">
-                    Change Password
-                  </Button>
-                  <Button variant="outline" className="w-full bg-[#FFD966] text-black hover:bg-yellow-400 border-none">
-                    Manage Connected Accounts
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
