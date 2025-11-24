@@ -85,7 +85,7 @@ const NavigationBar: React.FC<NavigationBarProps> = ({
         <div className="hidden lg:flex items-center space-x-2">
           <button
             onClick={onPrevMonth}
-            className="hover:bg-[#FFD966] hover:text-black rounded-full p-2 transition-colors"
+            className="hover:bg-[#FFD96] hover:text-black rounded-full p-2 transition-colors"
           >
             <ChevronLeft size={20} />
           </button>
