@@ -22,13 +22,15 @@ type CalendarEvent = {
 
 // Define the type for the Supabase event row (based on selected fields)
 type SupabaseEvent = {
-  id: string;
-  title: string;
-  start_time: string;
+ id: string;
+ title: string;
+ start_time: string;
   end_time: string | null;
   description: string | null;
   is_all_day: boolean;
 };
+
+
 
 const Calendar: React.FC = () => {
   const { user } = useAuth();
@@ -36,24 +38,107 @@ const Calendar: React.FC = () => {
   const { calendarRef, view, setView } = useCalendar();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [showEmptyView, setShowEmptyView] = useState(false);
+  
+  // Function to refresh events
+ const refreshEvents = async () => {
+    if (!user) return;
+
+    // Fetch events created by the user
+    const { data: ownedEvents, error: ownedError } = await supabase
+      .from('events')
+      .select('id, title, start_time, end_time, description, is_all_day')
+      .eq('created_by', user.id);
+
+    if (ownedError) {
+      console.error('Error fetching owned events:', ownedError);
+      return;
+    }
+
+    // Fetch events where the user is an accepted participant
+    const { data: participantEvents, error: participantError } = await supabase
+      .from('event_participants')
+      .select(`
+        events (
+          id,
+          title,
+          start_time,
+          end_time,
+          description,
+          is_all_day
+        )
+      `)
+      .eq('user_id', user.id)
+      .eq('status', 'accepted');
+
+    if (participantError) {
+      console.error('Error fetching participant events:', participantError);
+      return;
+    }
+
+    // Extract the events from the joined query result
+    const participantEventItems = participantEvents.map(item => item.events);
+
+    // Combine both sets of events
+    const allEvents = [...ownedEvents, ...participantEventItems];
+
+    // Transform the data to match FullCalendar's expected format
+    const calendarEvents: CalendarEvent[] = allEvents.map((event: any) => ({ // eslint-disable-line @typescript-eslint/no-explicit-any
+      id: event.id,
+      title: event.title,
+      start: event.start_time,
+      end: event.end_time || undefined,
+      allDay: event.is_all_day,
+      description: event.description || undefined,
+    }));
+
+    setEvents(calendarEvents);
+  };
 
   // Fetch events for the authenticated user from Supabase
-  useEffect(() => {
+ useEffect(() => {
     const fetchEvents = async () => {
       if (!user) return;
 
-      const { data, error } = await supabase
+      // Fetch events created by the user
+      const { data: ownedEvents, error: ownedError } = await supabase
         .from('events')
         .select('id, title, start_time, end_time, description, is_all_day')
         .eq('created_by', user.id);
 
-      if (error) {
-        console.error('Error fetching events:', error);
+      if (ownedError) {
+        console.error('Error fetching owned events:', ownedError);
         return;
       }
 
+      // Fetch events where the user is an accepted participant
+      const { data: participantEvents, error: participantError } = await supabase
+        .from('event_participants')
+        .select(`
+          events (
+            id,
+            title,
+            start_time,
+            end_time,
+            description,
+            is_all_day
+          )
+        `)
+        .eq('user_id', user.id)
+        .eq('status', 'accepted');
+
+      if (participantError) {
+        console.error('Error fetching participant events:', participantError);
+        return;
+      }
+
+      // Extract the events from the joined query result
+      const participantEventItems = participantEvents.map(item => item.events);
+
+      // Combine both sets of events
+      const allEvents = [...ownedEvents, ...participantEventItems];
+
       // Transform the data to match FullCalendar's expected format
-      const calendarEvents: CalendarEvent[] = data.map((event: SupabaseEvent) => ({
+      const calendarEvents: CalendarEvent[] = allEvents.map((event: any) => ({ // eslint-disable-line @typescript-eslint/no-explicit-any
         id: event.id,
         title: event.title,
         start: event.start_time,
@@ -77,7 +162,7 @@ const Calendar: React.FC = () => {
   }, [showEmptyView, view]);
 
   // Handle event creation/update in Supabase
-  const handleEventChange = async (info: any) => {
+  const handleEventChange = async (info: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
     // Update the event in the database
     const { error } = await supabase
       .from('events')
@@ -89,10 +174,61 @@ const Calendar: React.FC = () => {
     
     if (error) {
       console.error('Error updating event:', error);
+    } else {
+      // Refresh events to ensure UI is up to date
+      // Fetch events created by the user
+      const { data: ownedEvents, error: ownedError } = await supabase
+        .from('events')
+        .select('id, title, start_time, end_time, description, is_all_day')
+        .eq('created_by', user?.id);
+
+      if (ownedError) {
+        console.error('Error fetching owned events:', ownedError);
+        return;
+      }
+
+      // Fetch events where the user is an accepted participant
+      const { data: participantEvents, error: participantError } = await supabase
+        .from('event_participants')
+        .select(`
+          events (
+            id,
+            title,
+            start_time,
+            end_time,
+            description,
+            is_all_day
+          )
+        `)
+        .eq('user_id', user?.id)
+        .eq('status', 'accepted');
+
+      if (participantError) {
+        console.error('Error fetching participant events:', participantError);
+        return;
+      }
+
+      // Extract the events from the joined query result
+      const participantEventItems = participantEvents.map(item => item.events);
+
+      // Combine both sets of events
+      const allEvents = [...ownedEvents, ...participantEventItems];
+
+      // Transform the data to match FullCalendar's expected format
+      const calendarEvents: CalendarEvent[] = allEvents.map((event: any) => ({ // eslint-disable-line @typescript-eslint/no-explicit-any
+        id: event.id,
+        title: event.title,
+        start: event.start_time,
+        end: event.end_time || undefined,
+        allDay: event.is_all_day,
+        description: event.description || undefined,
+      }));
+      
+      setEvents(calendarEvents);
     }
   };
 
-  const handleDateClick = (arg: any) => {
+  const handleDateClick = (arg: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
     const clickedDate = arg.date;
     const eventsOnDate = events.filter(event => {
       const eventDate = new Date(event.start);
@@ -113,25 +249,6 @@ const Calendar: React.FC = () => {
     }
   };
 
-  // Define the event type based on the database schema
-  type CalendarEvent = {
-    id: string;
-    title: string;
-    start: string; // ISO date string
-    end?: string; // ISO date string
-    allDay?: boolean;
-    description?: string;
- };
-
-  // Define the type for the Supabase event row (based on selected fields)
-  type SupabaseEvent = {
-    id: string;
-    title: string;
-    start_time: string;
-    end_time: string | null;
-    description: string | null;
-    is_all_day: boolean;
-  };
 
   // Calendar options
   const calendarOptions = {
@@ -147,37 +264,81 @@ const Calendar: React.FC = () => {
     dayMaxEvents: true,
     selectable: true,
     dateClick: handleDateClick,
-    eventClick: async (info: any) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    eventClick: async (info: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
       // Handle event click, show options to edit or delete
       const action = window.confirm(`Event: ${info.event.title}\nStart: ${info.event.startStr}\nEnd: ${info.event.endStr}\n\nClick OK to delete, or Cancel to keep the event.`);
       if (action) {
         // User wants to delete the event
         const result = window.confirm('Are you sure you want to delete this event?');
         if (result) {
-          const { error } = await supabase
+          // Check if the user is the event creator (only creators can delete events)
+          const { data: eventData, error: eventFetchError } = await supabase
             .from('events')
-            .delete()
-            .eq('id', info.event.id);
+            .select('created_by')
+            .eq('id', info.event.id)
+            .single();
           
-          if (error) {
-            console.error('Error deleting event:', error);
-            alert('Failed to delete event: ' + error.message);
-          } else {
-            // Remove the event from the calendar view
-            info.event.remove();
-            console.log('Event deleted successfully');
-            // Refresh events to ensure UI is up to date
-            const { data, error: fetchError } = await supabase
+          if (eventFetchError) {
+            console.error('Error fetching event creator:', eventFetchError);
+            alert('Failed to verify event ownership: ' + eventFetchError.message);
+            return;
+          }
+          
+          if (eventData.created_by === user?.id) {
+            // User is the creator, allow deletion
+            const { error } = await supabase
               .from('events')
-              .select('id, title, start_time, end_time, description, is_all_day')
-              .eq('created_by', user?.id);
+              .delete()
+              .eq('id', info.event.id);
             
-            if (fetchError) {
-              console.error('Error refreshing events:', fetchError);
+            if (error) {
+              console.error('Error deleting event:', error);
+              alert('Failed to delete event: ' + error.message);
             } else {
+              // Remove the event from the calendar view
+              info.event.remove();
+              console.log('Event deleted successfully');
+              // Refresh events to ensure UI is up to date
+              // Fetch events created by the user
+              const { data: ownedEvents, error: ownedError } = await supabase
+                .from('events')
+                .select('id, title, start_time, end_time, description, is_all_day')
+                .eq('created_by', user?.id);
+
+              if (ownedError) {
+                console.error('Error fetching owned events:', ownedError);
+                return;
+              }
+
+              // Fetch events where the user is an accepted participant
+              const { data: participantEvents, error: participantError } = await supabase
+                .from('event_participants')
+                .select(`
+                  events (
+                    id,
+                    title,
+                    start_time,
+                    end_time,
+                    description,
+                    is_all_day
+                  )
+                `)
+                .eq('user_id', user?.id)
+                .eq('status', 'accepted');
+
+              if (participantError) {
+                console.error('Error fetching participant events:', participantError);
+                return;
+              }
+
+              // Extract the events from the joined query result
+              const participantEventItems = participantEvents.map(item => item.events);
+
+              // Combine both sets of events
+              const allEvents = [...ownedEvents, ...participantEventItems];
+
               // Transform the data to match FullCalendar's expected format
-              const calendarEvents: CalendarEvent[] = data.map((event: SupabaseEvent) => ({
+              const calendarEvents: CalendarEvent[] = allEvents.map((event: any) => ({ // eslint-disable-line @typescript-eslint/no-explicit-any
                 id: event.id,
                 title: event.title,
                 start: event.start_time,
@@ -187,6 +348,90 @@ const Calendar: React.FC = () => {
               }));
               
               setEvents(calendarEvents);
+            }
+          } else {
+            // Check if the user is a participant (not the creator)
+            const { data: participantData, error: participantFetchError } = await supabase
+              .from('event_participants')
+              .select('status')
+              .eq('event_id', info.event.id)
+              .eq('user_id', user?.id)
+              .single();
+            
+            if (participantFetchError) {
+              console.error('Error checking participant status:', participantFetchError);
+              alert('Failed to verify event participation: ' + participantFetchError.message);
+              return;
+            }
+            
+            if (participantData) {
+              // User is a participant, remove their participation instead of deleting the event
+              const { error } = await supabase
+                .from('event_participants')
+                .delete()
+                .eq('event_id', info.event.id)
+                .eq('user_id', user?.id);
+              
+              if (error) {
+                console.error('Error removing event participation:', error);
+                alert('Failed to remove event participation: ' + error.message);
+              } else {
+                // Remove the event from the calendar view
+                info.event.remove();
+                console.log('Event participation removed successfully');
+                // Refresh events to ensure UI is up to date
+                // Fetch events created by the user
+                const { data: ownedEvents, error: ownedError } = await supabase
+                  .from('events')
+                  .select('id, title, start_time, end_time, description, is_all_day')
+                  .eq('created_by', user?.id);
+
+                if (ownedError) {
+                  console.error('Error fetching owned events:', ownedError);
+                  return;
+                }
+
+                // Fetch events where the user is an accepted participant
+                const { data: participantEvents, error: participantError } = await supabase
+                  .from('event_participants')
+                  .select(`
+                    events (
+                      id,
+                      title,
+                      start_time,
+                      end_time,
+                      description,
+                      is_all_day
+                    )
+                  `)
+                  .eq('user_id', user?.id)
+                  .eq('status', 'accepted');
+
+                if (participantError) {
+                  console.error('Error fetching participant events:', participantError);
+                  return;
+                }
+
+                // Extract the events from the joined query result
+                const participantEventItems = participantEvents.map(item => item.events);
+
+                // Combine both sets of events
+                const allEvents = [...ownedEvents, ...participantEventItems];
+
+                // Transform the data to match FullCalendar's expected format
+                const calendarEvents: CalendarEvent[] = allEvents.map((event: any) => ({ // eslint-disable-line @typescript-eslint/no-explicit-any
+                  id: event.id,
+                  title: event.title,
+                  start: event.start_time,
+                  end: event.end_time || undefined,
+                  allDay: event.is_all_day,
+                  description: event.description || undefined,
+                }));
+                
+                setEvents(calendarEvents);
+              }
+            } else {
+              alert('Only event creators can delete events.');
             }
           }
         }

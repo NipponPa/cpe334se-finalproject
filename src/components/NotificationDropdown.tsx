@@ -113,16 +113,50 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onC
     if (!user) return;
 
     try {
-      // Update the event_participants table with the response
-      const { error: participantError } = await supabase
-        .from('event_participants')
-        .update({ status: response })
-        .eq('event_id', eventId)
-        .eq('user_id', user.id);
+      console.log(`Handling invitation response for event ${eventId} for user ${user.id} with response ${response}`);
+      
+      if (response === 'accepted') {
+        // Fetch the original event details to duplicate it
+        const { data: originalEvent, error: eventFetchError } = await supabase
+          .from('events')
+          .select('*')
+          .eq('id', eventId)
+          .single();
 
-      if (participantError) {
-        console.error('Error updating event participant:', participantError);
-        return;
+        if (eventFetchError) {
+          console.error('Error fetching original event:', eventFetchError);
+          alert(`Error fetching original event: ${eventFetchError.message}`);
+          return;
+        }
+
+        // Create a new event for the receiver (duplicate of the original)
+        const newEvent = {
+          title: originalEvent.title,
+          description: originalEvent.description,
+          start_time: originalEvent.start_time,
+          end_time: originalEvent.end_time,
+          location: originalEvent.location,
+          color: originalEvent.color,
+          is_all_day: originalEvent.is_all_day,
+          created_by: user.id, // The receiver becomes the creator of their copy
+        };
+
+        const { data: newEventData, error: createError } = await supabase
+          .from('events')
+          .insert([newEvent])
+          .select()
+          .single();
+
+        if (createError) {
+          console.error('Error creating new event for receiver:', createError);
+          alert(`Error creating event in your calendar: ${createError.message}`);
+          return;
+        }
+
+        console.log('Successfully created new event for receiver:', newEventData);
+        
+        // Refresh the calendar to show the new event
+        window.location.reload();
       }
 
       // Remove the notification after response
@@ -133,12 +167,15 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onC
 
       if (notificationError) {
         console.error('Error deleting notification:', notificationError);
+        alert(`Error deleting notification: ${notificationError.message}`);
       } else {
         // Update local state to remove the notification
         setNotifications(prev => prev.filter(n => n.id !== notificationId));
+        console.log('Successfully deleted notification');
       }
     } catch (error) {
       console.error('Error handling invitation response:', error);
+      alert(`Error handling invitation response: ${error}`);
     }
   };
 
