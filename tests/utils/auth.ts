@@ -31,7 +31,7 @@ export async function signUpUser(page: Page, email: string, password: string, us
  */
 export async function signOutUser(page: Page) {
   await page.locator('button:has-text("Sign Out")').click();
-  await page.waitForURL('**/login'); // Wait for redirect to login page
+  await page.waitForURL('**/welcome'); // Wait for redirect to welcome page
 }
 
 /**

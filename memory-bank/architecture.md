@@ -73,6 +73,8 @@ The application now includes a comprehensive internal notification system for ev
 - `signup/page.tsx`: Implements signup flow that captures username and stores it in both Supabase authentication metadata and user table
 - During signup, username is stored as `full_name` in user metadata for display purposes in authentication system
 - After successful authentication signup, the application also updates the `users` table with the full name to ensure consistency
+- `ProtectedRoute.tsx`: Component that wraps protected pages and redirects unauthenticated users to the welcome page instead of login page
+- `welcome/page.tsx`: New welcome page that serves as the entry point for unauthenticated users with login/signup options
 
 ## Key Technical Decisions
 - Date handling: Implemented proper timezone conversion to prevent date shifting

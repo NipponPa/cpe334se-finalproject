@@ -44,8 +44,8 @@ test.describe('Authentication E2E Tests', () => {
 
   test('E2E-005: Protected route redirects unauthenticated user', async ({ page }) => {
     await page.goto('/'); // Assuming '/' is a protected route
-    await expect(page).toHaveURL('/login');
-    // The redirect to /login confirms that authentication was required.
+    await expect(page).toHaveURL('/welcome');
+    // The redirect to /welcome confirms that authentication was required.
     // The specific message "Authentication required" was not found on the login page.
   });
 
