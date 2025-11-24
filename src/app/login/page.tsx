@@ -49,7 +49,7 @@ export default function LoginPage() {
         {error && <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">{error}</div>}
         <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4">
           <div>
-            <Label htmlFor="email" className="block mb-1 text-[#FFD966]">Username:</Label>
+            <Label htmlFor="email" className="block mb-1 text-[#FFD966]">Email:</Label>
             <Input
               id="email"
               type="email"
