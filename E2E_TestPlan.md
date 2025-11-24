@@ -54,9 +54,9 @@ This document outlines the end-to-end test scenarios for the authentication syst
 **Preconditions:** No active user session
 **Steps:**
 1) Open home page (which is protected)
-2) Verify automatic redirect to `/login` page
-3) Confirm authentication required message is displayed
-**Expected:** Unauthenticated user is redirected to login page with appropriate message
+2) Verify automatic redirect to `/welcome` page
+3) Confirm welcome page is displayed with login/signup options
+**Expected:** Unauthenticated user is redirected to welcome page with appropriate message
 
 ## Scenario ID: E2E-006
 **Title:** Login with invalid credentials
