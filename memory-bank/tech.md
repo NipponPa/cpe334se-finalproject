@@ -80,3 +80,8 @@
 - AuthContext.tsx: Updated signUp function to accept userMetadata parameter for storing username during signup
 - signup-username-storage.test.ts: Unit tests verifying that username is properly stored in both authentication and user table during signup
 - profile/page.tsx: Updated to fetch and display full name from users table instead of user ID, and swapped the position of Full Name and Email fields in the UI
+- welcome/page.tsx: New welcome page created as entry point for unauthenticated users
+- ProtectedRoute.tsx: Updated redirect logic to send unauthenticated users to `/welcome` instead of `/login`
+- E2E_TestPlan.md: Updated to reflect new expected redirect behavior to `/welcome`
+- tests/e2e/auth.spec.ts: Updated test expectations to check for redirect to `/welcome`
+- tests/utils/auth.ts: Updated utility function to wait for redirect to `/welcome`
