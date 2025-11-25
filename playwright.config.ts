@@ -29,6 +29,11 @@ export default defineConfig({
       testMatch: /.*googleauth-flow\.spec\.ts/,
     },
     {
+      name: 'calendar-chromium',
+      use: { ...devices['Desktop Chrome'] },
+      testMatch: /.*calendar\/.*\.spec\.ts/,
+    },
+    {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
       testMatch: /.*auth\.spec\.ts/,

@@ -1,54 +1,100 @@
 # Calendar E2E Tests
 
-This directory contains end-to-end tests for calendar functionality including event management, navigation, and sharing features.
+This directory contains end-to-end tests for the calendar functionality, covering the complete flow from authentication to notifications.
 
-## Test Categories
+## Test Files
 
-### Event Management Tests
-- Creating events with various options
-- Editing existing events
-- Deleting events with confirmation
-- Multi-day event handling
-- All-day event functionality
+### `auth-crud-conflict-sharing-notifications-flow.spec.ts`
+Tests the complete end-to-end flow:
+- Authentication (login/register)
+- Calendar CRUD operations
+- Conflict detection
+- Event sharing
+- Notifications
 
-### Calendar Navigation Tests
-- Month/week/day view switching
-- Date navigation
-- Today button functionality
-- Event detail view
+### `calendar-crud.spec.ts`
+Tests calendar CRUD (Create, Read, Update, Delete) operations:
+- Creating events
+- Reading events from the calendar
+- Updating existing events
+- Deleting events
+- Creating all-day events
 
-### Sharing Tests
-- Friend selection for event sharing
-- Shared event visibility
-- Permission management
+### `conflict-detection.spec.ts`
+Tests the calendar's conflict detection system:
+- Detecting overlapping events
+- Handling multiple overlapping events
+- Warning users about scheduling conflicts
 
-## Example Test Structure
+### `sharing.spec.ts`
+Tests the event sharing functionality:
+- Sharing events with friends
+- Adding multiple friends to events
+- Editing shared events
 
-```typescript
-import { test, expect } from '@playwright/test';
+### `notifications.spec.ts`
+Tests the notification system:
+- Event reminder notifications
+- Event invitation notifications
+- Notification management
+- Browser notifications
 
-test.describe('Calendar Event Tests', () => {
-  test('Creating a new event', async ({ page }) => {
-    await page.goto('/calendar');
-    await page.getByRole('button', { name: 'Add Event' }).click();
-    
-    await page.locator('#event-title').fill('Test Event');
-    await page.locator('#event-date').fill('2024-01-15');
-    await page.locator('#event-time-start').fill('09:00');
-    await page.locator('#event-time-end').fill('10:00');
-    
-    await page.getByRole('button', { name: 'Save' }).click();
-    
-    await expect(page.locator('text=Test Event')).toBeVisible();
-  });
-});
-```
+## Test IDs
+
+Each test has a unique ID following the pattern E2E-XXX:
+
+- E2E-001: Complete flow - Authentication to Notifications
+- E2E-02: Authentication flow with error handling
+- E2E-003: Create, Read, Update, Delete events
+- E2E-004: Create all-day event
+- E2E-005: Detect and handle overlapping events
+- E2E-006: Multiple overlapping events detection
+- E2E-007: Share event with friends
+- E2E-08: Share event with multiple friends
+- E2E-009: Edit shared event permissions
+- E2E-010: Event reminder notifications
+- E2E-011: Event invitation notifications
+- E2E-012: View and manage notifications
+- E2E-013: Browser notifications for events
 
 ## Running Tests
 
-```bash
-# Run all calendar tests
-npx playwright test e2e/calendar/
+To run all calendar E2E tests:
 
-# Run specific calendar test
-npx playwright test e2e/calendar/event-creation.spec.ts
+```bash
+npx playwright test calendar/
+```
+
+To run a specific test file:
+
+```bash
+npx playwright test tests/e2e/calendar/calendar-crud.spec.ts
+```
+
+To run tests in headed mode (visible browser):
+
+```bash
+npx playwright test calendar/ --headed
+```
+
+To run tests in debug mode:
+
+```bash
+npx playwright test calendar/ --debug
+```
+
+## Test Environment
+
+Tests expect the application to be running at `http://localhost:3000`. Make sure to start the development server before running tests:
+
+```bash
+npm run dev
+```
+
+## Test User Credentials
+
+The tests use the following credentials for authenticated tests:
+- Email: `testuser@mail.com`
+- Password: `password123`
+
+For new user registration tests, the tests generate unique email addresses using timestamps.
