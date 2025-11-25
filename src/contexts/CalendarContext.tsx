@@ -1,9 +1,10 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
+import FullCalendar from '@fullcalendar/react';
 
 type CalendarContextType = {
-  calendarRef: React.RefObject<any>;
+  calendarRef: React.RefObject<FullCalendar | null>;
   view: string;
   setView: (view: string) => void;
   date: Date;
@@ -13,7 +14,7 @@ type CalendarContextType = {
 const CalendarContext = createContext<CalendarContextType | undefined>(undefined);
 
 export const CalendarProvider = ({ children }: { children: ReactNode }) => {
-  const calendarRef = React.useRef<any>(null);
+  const calendarRef = React.useRef<FullCalendar | null>(null);
   const [view, setView] = useState('dayGridMonth');
   const [date, setDate] = useState(new Date());
 

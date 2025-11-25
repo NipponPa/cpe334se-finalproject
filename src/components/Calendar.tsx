@@ -157,7 +157,8 @@ const Calendar: React.FC = () => {
     // When the calendar is re-rendered (e.g., after closing the empty day view),
     // ensure its internal view is synchronized with the state.
     if (!showEmptyView && calendarRef.current) {
-      calendarRef.current.getApi().changeView(view);
+      const calendarApi = calendarRef.current.getApi();
+      calendarApi.changeView(view);
     }
   }, [showEmptyView, view]);
 
@@ -243,9 +244,11 @@ const Calendar: React.FC = () => {
       setSelectedDate(clickedDate);
       setShowEmptyView(true);
     } else {
-      const calendarApi = calendarRef.current.getApi();
-      calendarApi.changeView('timeGridDay', clickedDate);
-      setView('timeGridDay');
+      if (calendarRef.current) {
+        const calendarApi = calendarRef.current.getApi();
+        calendarApi.changeView('timeGridDay', clickedDate);
+        setView('timeGridDay');
+      }
     }
   };
 

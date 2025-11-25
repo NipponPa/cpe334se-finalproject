@@ -10,7 +10,7 @@ const WelcomePage = () => {
   const fullText = "Plan your event with ease...";
 
   useEffect(() => {
-    let i = 0;
+    const i = 0;
     let currentInterval: NodeJS.Timeout;
 
     const startTyping = (isInitial: boolean) => {
