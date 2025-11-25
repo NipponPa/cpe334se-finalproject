@@ -1,4 +1,8 @@
-/* Tailwind Play CDN - Custom styles */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles */
 
 body {
   -webkit-font-smoothing: antialiased;
