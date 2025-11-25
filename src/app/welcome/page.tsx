@@ -7,7 +7,7 @@ const WelcomePage = () => {
   const [text, setText] = useState('');
   const [initialTypingDone, setInitialTypingDone] = useState(false); // New state for initial completion
   const [showStartButton, setShowStartButton] = useState(false);
-  const fullText = "Plan your event with ease... ไอ่ปริ้นหน้าหี";
+  const fullText = "Plan your event with ease...";
 
   useEffect(() => {
     const i = 0;
