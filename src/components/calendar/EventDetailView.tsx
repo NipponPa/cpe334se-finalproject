@@ -3,10 +3,11 @@ import React from 'react';
 interface Event {
   id: string | number;
   title: string;
-  startTime: Date;
-  endTime: Date;
-  description: string;
+ startTime: Date;
+ endTime: Date;
+ description: string;
   isAllDay?: boolean;
+  reminder_minutes?: number | null;
 }
 
 interface EventDetailViewProps {
@@ -98,6 +99,11 @@ const EventDetailView: React.FC<EventDetailViewProps> = ({
                         `${event.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${event.endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
                       )}
                     </p>
+                    {event.reminder_minutes !== null && event.reminder_minutes !== undefined && event.reminder_minutes > 0 && (
+                      <p className="text-xs text-yellow-300 mt-1">
+                        Reminder: {event.reminder_minutes} minute{event.reminder_minutes !== 1 ? 's' : ''} before
+                      </p>
+                    )}
                     <div className="absolute top-2 right-2 flex space-x-1">
                       {onEditEvent && (
                         <button

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import FriendSelection from './FriendSelection';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import { createEventInvitationNotification } from '@/lib/notification-utils';
+import { createEventInvitationNotification, createNotification } from '@/lib/notification-utils';
 
 interface Friend {
   id: string;
@@ -22,10 +22,11 @@ interface Event {
   title: string;
  startTime: Date;
  endTime: Date;
-  description: string;
-  invitees?: (string | {email: string, type: 'internal'})[];
+ description: string;
+ invitees?: (string | {email: string, type: 'internal'})[];
   invitations?: Invitation[];
   isAllDay?: boolean;
+  reminder_minutes?: number | null;
 }
 
 interface AddEventFormProps {
@@ -48,6 +49,7 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ isOpen, onClose, onSave, se
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const [isAllDay, setIsAllDay] = useState(false);
+  const [reminderMinutes, setReminderMinutes] = useState<number | null>(null);
   const { user } = useAuth();
   
   // Track if component is mounted to prevent state updates on unmounted components
@@ -114,6 +116,10 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ isOpen, onClose, onSave, se
       } else {
         setInvitees([]);
       }
+      
+      // Set reminder minutes if available in the event
+      // For now, we'll assume the event object has a reminder_minutes property when editing
+      // We'll need to update the Event interface to include this property
     } else {
       // For new events, only initialize dates if selectedDay is provided
       // Otherwise, keep fields empty until user starts typing
@@ -144,6 +150,7 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ isOpen, onClose, onSave, se
       setEndTime('');
       setInvitees([]);
       setIsAllDay(false);
+      setReminderMinutes(null); // Reset reminder minutes for new events
     }
   }, [editingEvent, selectedDay]);
 
@@ -184,8 +191,50 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ isOpen, onClose, onSave, se
       return data.full_name || 'A user';
     };
 
+  // Function to create a reminder notification
+  const createEventReminderNotification = async (
+    eventId: string,
+    eventTitle: string,
+    eventStartTime: Date,
+    reminderMinutes: number | null
+  ): Promise<void> => {
+    if (!reminderMinutes || reminderMinutes <= 0) {
+      // No reminder needed
+      return;
+    }
+
+    try {
+      // Calculate the reminder time by subtracting reminderMinutes from the event start time
+      const reminderTime = new Date(eventStartTime);
+      reminderTime.setMinutes(reminderTime.getMinutes() - reminderMinutes);
+
+      // Only create the notification if the reminder time is in the future
+      if (reminderTime > new Date()) {
+        const notificationResult = await createNotification({
+          user_id: user!.id,
+          title: 'Event Reminder',
+          message: `Your event "${eventTitle}" starts in ${reminderMinutes} minutes.`,
+          type: 'event_reminder',
+          related_entity_type: 'event',
+          related_entity_id: eventId,
+          scheduled_at: reminderTime.toISOString()
+        });
+
+        if (notificationResult.error) {
+          console.error('Error creating reminder notification:', notificationResult.error);
+        } else {
+          console.log('Reminder notification created successfully:', notificationResult.data);
+        }
+      } else {
+        console.log('Reminder time is in the past, not creating notification');
+      }
+    } catch (error) {
+      console.error('Error in createEventReminderNotification:', error);
+    }
+  };
+
   // Fetch friends/users from Supabase with retry logic and timeout
- useEffect(() => {
+useEffect(() => {
     isMountedRef.current = true;
 
     const initiateFetch = async () => {
@@ -228,6 +277,15 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ isOpen, onClose, onSave, se
       }
     };
   }, [isOpen, user?.id]);
+
+  // Request notification permission when the form opens
+ useEffect(() => {
+    if (isOpen && typeof window !== 'undefined' && 'Notification' in window) {
+      if (Notification.permission === 'default') {
+        Notification.requestPermission();
+      }
+    }
+  }, [isOpen]);
 
   const fetchFriends = async (retryCount = 0) => {
     console.log(`[AddEventForm fetchFriends] Attempting to fetch friends (retry: ${retryCount})...`);
@@ -457,7 +515,8 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ isOpen, onClose, onSave, se
             start_time: startDateTime.toISOString(),
             end_time: endDateTime.toISOString(),
             description: description.trim(),
-            is_all_day: isAllDay
+            is_all_day: isAllDay,
+            reminder_minutes: reminderMinutes
           })
           .eq('id', editingEvent.id)
           .select()
@@ -469,6 +528,14 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ isOpen, onClose, onSave, se
         }
         
         console.log('Event updated successfully with ID:', eventData.id);
+        
+        // Create the event reminder notification
+        await createEventReminderNotification(
+          eventData.id,
+          title.trim(),
+          startDateTime,
+          reminderMinutes
+        );
         
         // For edited events, we'll just call onSave to refresh the UI
         // Create invitations array for the event
@@ -485,7 +552,8 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ isOpen, onClose, onSave, se
           description: description.trim(),
           invitees: invitees,
           invitations: invitations,
-          isAllDay
+          isAllDay,
+          reminder_minutes: reminderMinutes
         });
       } else {
         // Create new event - first create the event in the database directly
@@ -500,6 +568,7 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ isOpen, onClose, onSave, se
             end_time: endDateTime.toISOString(),
             description: description.trim(),
             is_all_day: isAllDay,
+            reminder_minutes: reminderMinutes,
             created_by: user.id
           }])
           .select()
@@ -511,6 +580,14 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ isOpen, onClose, onSave, se
         }
         
         console.log('Event created successfully with ID:', eventData.id);
+        
+        // Create the event reminder notification
+        await createEventReminderNotification(
+          eventData.id,
+          title.trim(),
+          startDateTime,
+          reminderMinutes
+        );
         
         // Process internal invitations using notifications (only after the event is created)
         if (invitees && invitees.length > 0) {
@@ -574,7 +651,8 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ isOpen, onClose, onSave, se
           description: description.trim(),
           invitees: invitees,
           invitations: invitations,
-          isAllDay
+          isAllDay,
+          reminder_minutes: reminderMinutes
         });
       }
       
@@ -590,6 +668,7 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ isOpen, onClose, onSave, se
       setStartDate('');
       setEndDate('');
       setIsAllDay(false);
+      setReminderMinutes(null);
     } catch (error: unknown) {
       console.error('Error handling event submission:', error);
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
@@ -608,6 +687,7 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ isOpen, onClose, onSave, se
     setStartDate('');
     setEndDate('');
     setIsAllDay(false);
+    setReminderMinutes(null);
   };
 
   return (
@@ -760,6 +840,29 @@ const AddEventForm: React.FC<AddEventFormProps> = ({ isOpen, onClose, onSave, se
               placeholder="Enter event description"
               rows={3}
             />
+          </div>
+          
+          {/* Reminder Selection Section */}
+          <div className="mb-6">
+            <label htmlFor="reminderMinutes" className="block text-sm font-medium mb-1">
+              Reminder
+            </label>
+            <select
+              id="reminderMinutes"
+              value={reminderMinutes === null ? '' : reminderMinutes}
+              onChange={(e) => setReminderMinutes(e.target.value === '' ? null : Number(e.target.value))}
+              className="w-full p-2 bg-[#4a4646] border-[#FFD966] rounded text-white"
+            >
+              <option value="">No reminder</option>
+              <option value="5">5 minutes before</option>
+              <option value="10">10 minutes before</option>
+              <option value="15">15 minutes before</option>
+              <option value="30">30 minutes before</option>
+              <option value="60">1 hour before</option>
+              <option value="120">2 hours before</option>
+              <option value="240">4 hours before</option>
+              <option value="1440">1 day before</option>
+            </select>
           </div>
           
           {/* Friend Selection Section */}
